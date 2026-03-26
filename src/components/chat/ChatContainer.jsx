@@ -8,10 +8,19 @@ import ChatInput from './ChatInput';
 const ChatContainer = ({ assignments, onAddAssignment }) => {
     const getTimestamp = () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    const [messages, setMessages] = useState([
-        { id: 1, text: "Hello! I'm StudyFlow. Need help tracking your deadlines?", type: 'bot', time: getTimestamp() },
-        { id: 2, text: 'Try saying: "Add History Essay by Friday"', type: 'bot', time: getTimestamp() }
-    ]);
+    const [messages, setMessages] = useState(() => {
+        const saved = localStorage.getItem('chat_messages');
+        if (saved) return JSON.parse(saved);
+        return [
+            { id: 1, text: "Hello! I'm StudyFlow. Need help tracking your deadlines?", type: 'bot', time: getTimestamp() },
+            { id: 2, text: 'Try saying: "Add History Essay by Friday"', type: 'bot', time: getTimestamp() }
+        ];
+    });
+
+    useEffect(() => {
+        localStorage.setItem('chat_messages', JSON.stringify(messages));
+    }, [messages]);
+
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const chatEndRef = useRef(null);

@@ -14,6 +14,14 @@ function App() {
   }, [assignments]);
 
   const addAssignment = (newTask) => {
+    // Duplication check: Prevent adding the same task with same title and deadline
+    const isDuplicate = assignments.some(a => 
+      a.title.toLowerCase() === newTask.title.toLowerCase() && 
+      new Date(a.deadline).getTime() === new Date(newTask.deadline).getTime()
+    );
+
+    if (isDuplicate) return;
+
     setAssignments(prev => [...prev, {
       ...newTask,
       id: Date.now(),
