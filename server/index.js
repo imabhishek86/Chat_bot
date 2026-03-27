@@ -2,6 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const chatRoutes = require('./routes/chatRoutes');
+const assignmentRoutes = require('./routes/assignmentRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -19,6 +21,8 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/studyflow')
     });
 
 // API Routes
+app.use('/api/chat', chatRoutes);
+
 app.get('/api/status', (req, res) => {
     res.json({ status: 'active', message: 'StudyFlow Backend is running' });
 });
