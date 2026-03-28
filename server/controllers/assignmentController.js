@@ -3,8 +3,12 @@ const Assignment = require('../models/Assignment');
 const getThisWeekAssignments = async (req, res) => {
     try {
         const now = new Date();
+        now.setHours(0, 0, 0, 0); // Start of today
+        
         const nextWeek = new Date();
         nextWeek.setDate(now.getDate() + 7);
+        nextWeek.setHours(23, 59, 59, 999); // End of 7 days from now
+
 
         const assignments = await Assignment.find({
             deadline: { $gte: now, $lte: nextWeek }

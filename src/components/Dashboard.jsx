@@ -1,8 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import './Dashboard.css';
-import { getPriority } from '../utils/deadlineParser';
-
 const Dashboard = ({ assignments, onDelete, onUpdate }) => {
     const sortedAssignments = [...assignments].sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
 
@@ -29,7 +27,8 @@ const Dashboard = ({ assignments, onDelete, onUpdate }) => {
                 <div className="deadline-grid">
                     <AnimatePresence mode="popLayout">
                         {sortedAssignments.map(item => {
-                            const priority = getPriority(item.deadline);
+                            const priority = item.priority || 'Low';
+
                             return (
                                 <motion.div 
                                     key={item.id} 
@@ -40,9 +39,10 @@ const Dashboard = ({ assignments, onDelete, onUpdate }) => {
                                     className={`assignment-card glass-card ${item.status}`}
                                 >
                                     <div className="card-top">
-                                        <span className={`priority-tag ${priority}`}>
+                                        <span className={`priority-tag ${priority.toLowerCase()}`}>
                                             {priority.toUpperCase()}
                                         </span>
+
                                         <button onClick={() => onDelete(item.id)} className="delete-btn">&times;</button>
                                     </div>
                                     <h4 className="card-title">{item.title}</h4>

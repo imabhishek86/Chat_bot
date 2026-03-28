@@ -1,10 +1,5 @@
-/**
- * Simple NLP parser for assignments.
- * Supports patterns like:
- * "Add Math Homework next Friday"
- * "Biology Lab on 2026-04-15"
- * "Finish Essay by Monday"
- */
+import { calculatePriority } from './priority';
+
 export const parseDeadline = (input) => {
   const text = input.toLowerCase();
   
@@ -52,20 +47,13 @@ export const parseDeadline = (input) => {
     if (!isNaN(parsed)) deadline = parsed;
   }
 
+  const deadlineIso = deadline.toISOString();
+
   return {
     title: task.charAt(0).toUpperCase() + task.slice(1),
-    deadline: deadline.toISOString(),
+    deadline: deadlineIso,
+    priority: calculatePriority(deadlineIso),
     originalInput: input
   };
 };
 
-export const getPriority = (deadlineIso) => {
-    const now = new Date();
-    const deadline = new Date(deadlineIso);
-    const diffHours = (deadline - now) / (1000 * 60 * 60);
-
-    if (diffHours < 0) return 'overdue';
-    if (diffHours < 24) return 'critical';
-    if (diffHours < 72) return 'high';
-    return 'normal';
-};

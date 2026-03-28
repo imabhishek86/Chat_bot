@@ -4,8 +4,14 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const chatRoutes = require('./routes/chatRoutes');
 const assignmentRoutes = require('./routes/assignmentRoutes');
+const reminderService = require('./services/reminderService');
 
 const app = express();
+// ... (middleware and connection)
+
+// Initialize Services
+reminderService.initReminders();
+
 const PORT = process.env.PORT || 5000;
 
 // Middleware
@@ -22,6 +28,8 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/studyflow')
 
 // API Routes
 app.use('/api/chat', chatRoutes);
+app.use('/api/assignments', assignmentRoutes);
+
 
 app.get('/api/status', (req, res) => {
     res.json({ status: 'active', message: 'StudyFlow Backend is running' });

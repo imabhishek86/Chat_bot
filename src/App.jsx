@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Chat from './components/chat/ChatContainer';
 import Dashboard from './components/Dashboard';
 import Sidebar from './components/Sidebar';
+import { calculatePriority } from './utils/priority';
+
 
 function App() {
   const [assignments, setAssignments] = useState(() => {
@@ -22,8 +24,12 @@ function App() {
 
     if (isDuplicate) return;
 
+    // Automatically calculate priority if not provided
+    const priority = newTask.priority || calculatePriority(newTask.deadline);
+
     setAssignments(prev => [...prev, {
       ...newTask,
+      priority,
       id: Date.now(),
       status: 'pending',
       createdAt: new Date().toISOString()
@@ -35,8 +41,19 @@ function App() {
   };
 
   const updateAssignment = (id, updates) => {
-    setAssignments(prev => prev.map(a => a.id === id ? { ...a, ...updates } : a));
+    setAssignments(prev => prev.map(a => {
+      if (a.id === id) {
+        const updatedTask = { ...a, ...updates };
+        // If deadline is updated, recalculate priority
+        if (updates.deadline) {
+          updatedTask.priority = calculatePriority(updates.deadline);
+        }
+        return updatedTask;
+      }
+      return a;
+    }));
   };
+
 
   return (
     <div className="container animate-fade max-w-[1600px] mx-auto px-6">

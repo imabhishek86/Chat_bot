@@ -21,9 +21,9 @@ const handleChat = async (req, res) => {
 
             const newAssignment = await Assignment.create({
                 title: extracted.title,
-                deadline: extracted.deadline,
-                priority: 'Medium'
+                deadline: extracted.deadline
             });
+
 
             return res.status(201).json({
                 reply: `✅ Added assignment: "${newAssignment.title}" for ${newAssignment.deadline.toDateString()}`,

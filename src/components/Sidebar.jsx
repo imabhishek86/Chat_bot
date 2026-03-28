@@ -1,13 +1,14 @@
 import React from 'react';
-import { getPriority } from '../utils/deadlineParser';
+import { calculatePriority } from '../utils/priority';
 
 const Sidebar = ({ assignments }) => {
     const total = assignments.length;
     
     const highPriority = assignments.filter(a => {
-        const priority = getPriority(a.deadline);
-        return priority === 'high' || priority === 'critical' || priority === 'overdue';
+        const p = a.priority || calculatePriority(a.deadline);
+        return p.toLowerCase() === 'high';
     }).length;
+
 
     const dueThisWeek = assignments.filter(a => {
         const now = new Date();

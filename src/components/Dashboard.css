@@ -69,10 +69,10 @@
     letter-spacing: 0.5px;
 }
 
-.priority-tag.critical { background: #ef4444; color: white; }
-.priority-tag.high { background: #f59e0b; color: white; }
-.priority-tag.normal { background: #3b82f6; color: white; }
-.priority-tag.overdue { background: #111827; color: white; border: 1px solid #ef4444; }
+.priority-tag.high { background: #ef4444; color: white; }
+.priority-tag.medium { background: #f59e0b; color: white; }
+.priority-tag.low { background: #3b82f6; color: white; }
+
 
 .delete-btn {
     background: none;
