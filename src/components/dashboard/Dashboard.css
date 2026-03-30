@@ -1,0 +1,12 @@
+/* 
+  Most styles moved to utility-first approach in index.css 
+  Keeping this for any specific component overrides 
+*/
+
+.glass-panel {
+    border-radius: var(--radius-xl);
+}
+
+.animate-slide-up {
+    animation-delay: calc(var(--index) * 0.1s);
+}
