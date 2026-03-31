@@ -24,7 +24,6 @@ const getThisWeekAssignments = async (req, res) => {
     }
 };
 
-<<<<<<< HEAD
 const updateAssignmentStatus = async (req, res) => {
     try {
         const { id } = req.params;
@@ -80,9 +79,3 @@ module.exports = {
     deleteAssignment
 };
 
-
-=======
-module.exports = {
-    getThisWeekAssignments
-};
->>>>>>> 3dd829c3d0d072bd55ec48ca1d184a87e642a64f

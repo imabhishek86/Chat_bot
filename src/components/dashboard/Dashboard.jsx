@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import AssignmentList from './AssignmentList';
 import SummaryCards from './SummaryCards';
 import CalendarView from './CalendarView';
+import AnalyticsView from './AnalyticsView';
 import ProductivityScore from './ProductivityScore';
 import Filters from '../ui/Filters';
 
@@ -10,7 +11,7 @@ import './Dashboard.css';
 
 
 const Dashboard = ({ assignments, onDelete, onUpdate }) => {
-    const [viewMode, setViewMode] = useState('list'); // 'list' or 'calendar'
+    const [viewMode, setViewMode] = useState('list'); // 'list', 'calendar' or 'analytics'
     const [search, setSearch] = useState('');
     const [priorityFilter, setPriorityFilter] = useState('all');
     const [statusFilter, setStatusFilter] = useState('all');
@@ -44,6 +45,12 @@ const Dashboard = ({ assignments, onDelete, onUpdate }) => {
                     >
                         Calendar
                     </button>
+                    <button 
+                        className={`view-btn ${viewMode === 'analytics' ? 'active' : ''}`}
+                        onClick={() => setViewMode('analytics')}
+                    >
+                        Analytics
+                    </button>
                 </div>
             </div>
 
@@ -57,7 +64,7 @@ const Dashboard = ({ assignments, onDelete, onUpdate }) => {
             <div className="px-2 mb-8">
                 <div className="flex flex-col gap-6 mb-8">
                     <h3 className="text-xs font-black text-white/20 uppercase tracking-[0.3em]">
-                        {viewMode === 'list' ? 'Manage Tasks' : 'Deadline Calendar'}
+                        {viewMode === 'list' ? 'Manage Tasks' : viewMode === 'calendar' ? 'Deadline Calendar' : 'Insight Analytics'}
                     </h3>
 
                     {viewMode === 'list' && (
@@ -78,12 +85,14 @@ const Dashboard = ({ assignments, onDelete, onUpdate }) => {
                         onDelete={onDelete} 
                         onUpdate={onUpdate} 
                     />
-                ) : (
+                ) : viewMode === 'calendar' ? (
                     <CalendarView 
                         assignments={assignments} 
                         onDelete={onDelete} 
                         onUpdate={onUpdate} 
                     />
+                ) : (
+                    <AnalyticsView assignments={assignments} />
                 )}
             </div>
         </div>

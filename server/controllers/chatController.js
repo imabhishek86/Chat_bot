@@ -11,12 +11,7 @@ const handleChat = async (req, res) => {
         const intent = chatbotService.parseIntent(message);
 
         if (intent === 'ADD_ASSIGNMENT') {
-<<<<<<< HEAD
             const extracted = await chatbotService.extractAssignment(message);
-
-=======
-            const extracted = chatbotService.extractAssignment(message);
->>>>>>> 3dd829c3d0d072bd55ec48ca1d184a87e642a64f
             
             if (!extracted) {
                 return res.json({ 
@@ -29,7 +24,6 @@ const handleChat = async (req, res) => {
                 deadline: extracted.deadline
             });
 
-<<<<<<< HEAD
             return res.status(201).json({
                 message: "Assignment added successfully",
                 assignment: newAssignment,
@@ -38,16 +32,6 @@ const handleChat = async (req, res) => {
             });
         }
 
-
-=======
-
-            return res.status(201).json({
-                reply: `✅ Added assignment: "${newAssignment.title}" for ${newAssignment.deadline.toDateString()}`,
-                newAssignment: newAssignment
-            });
-        }
-
->>>>>>> 3dd829c3d0d072bd55ec48ca1d184a87e642a64f
         if (intent === 'QUERY_WEEK') {
             const now = new Date();
             const nextWeek = new Date();
@@ -72,17 +56,10 @@ const handleChat = async (req, res) => {
         });
 
     } catch (error) {
-<<<<<<< HEAD
+    } catch (error) {
         res.status(500).json({ status: 'error', message: 'Internal Server Error' });
     }
 
-
-
-=======
-        console.error('Chat Controller Error:', error);
-        res.status(500).json({ status: 'error', message: 'Internal Server Error' });
-    }
->>>>>>> 3dd829c3d0d072bd55ec48ca1d184a87e642a64f
 };
 
 module.exports = {
