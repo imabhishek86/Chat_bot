@@ -1,5 +1,7 @@
 const Assignment = require('../models/Assignment');
 const chatbotService = require('../services/chatbotService');
+const openaiService = require('../services/openaiService');
+const googleCalendarService = require('../services/googleCalendarService');
 
 const handleChat = async (req, res) => {
     try {
@@ -23,6 +25,9 @@ const handleChat = async (req, res) => {
                 title: extracted.title,
                 deadline: extracted.deadline
             });
+
+            // Sync with Google Calendar
+            await googleCalendarService.addEvent(newAssignment);
 
             return res.status(201).json({
                 message: "Assignment added successfully",
@@ -51,12 +56,26 @@ const handleChat = async (req, res) => {
             });
         }
 
+        if (intent === 'GET_SUGGESTION') {
+            const pending = await Assignment.find({ status: 'pending' }).sort({ deadline: 1 });
+            
+            if (pending.length === 0) {
+                return res.json({ reply: "You don't have any pending assignments! Enjoy your free time! 🌈" });
+            }
+
+            const recommendation = await openaiService.generateTaskSuggestion(pending);
+            
+            return res.json({
+                reply: recommendation || "Based on your deadlines, I'd recommend starting with your earliest task. Let's get to work!"
+            });
+        }
+
         return res.json({ 
             reply: "I'm not sure how to help with that. Try asking me to add an assignment or show what's due this week." 
         });
 
     } catch (error) {
-    } catch (error) {
+        console.error('Chat processing error:', error);
         res.status(500).json({ status: 'error', message: 'Internal Server Error' });
     }
 

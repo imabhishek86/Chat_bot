@@ -88,8 +88,40 @@ const generateMotivationalMessage = async (assignment) => {
 };
 
 
+const generateTaskSuggestion = async (assignments) => {
+    try {
+        if (!process.env.OPENAI_API_KEY || assignments.length === 0) return null;
+
+        const taskList = assignments.map(a => 
+            `- ${a.title} (Due: ${new Date(a.deadline).toDateString()}, Priority: ${a.priority || 'Medium'})`
+        ).join('\n');
+
+        const response = await openai.chat.completions.create({
+            model: "gpt-3.5-turbo",
+            messages: [
+                {
+                    role: "system",
+                    content: "You are a highly efficient productivity coach. Analyze a student's list of pending assignments and suggest exactly ONE task they should tackle next. Focus on deadlines and priority. Be concise, professional, and slightly motivating (max 3 sentences)."
+                },
+                {
+                    role: "user",
+                    content: `Here are my pending assignments:\n${taskList}\n\nWhich one should I do first and why?`
+                }
+            ],
+            max_tokens: 100
+        });
+
+        return response.choices[0].message.content.trim();
+    } catch (error) {
+        console.error('AI Suggestion Error:', error.message);
+        return null;
+    }
+};
+
+
 module.exports = {
     extractAssignmentWithAI,
-    generateMotivationalMessage
+    generateMotivationalMessage,
+    generateTaskSuggestion
 };
 

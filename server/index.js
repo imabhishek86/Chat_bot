@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const chatRoutes = require('./routes/chatRoutes');
 const assignmentRoutes = require('./routes/assignmentRoutes');
+const calendarRoutes = require('./routes/calendarRoutes');
 const reminderService = require('./services/reminderService');
 
 const app = express();
@@ -29,6 +30,7 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/studyflow')
 // API Routes
 app.use('/api/chat', chatRoutes);
 app.use('/api/assignments', assignmentRoutes);
+app.use('/api/calendar', calendarRoutes);
 
 
 app.get('/api/status', (req, res) => {

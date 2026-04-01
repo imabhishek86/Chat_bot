@@ -8,6 +8,10 @@ const parseIntent = (message) => {
         return 'QUERY_WEEK';
     }
     
+    if (text.includes('next') || text.includes('suggest') || text.includes('should i do') || text.includes('recommendation') || text.includes('help me decide')) {
+        return 'GET_SUGGESTION';
+    }
+    
     if (text.includes('add') || text.includes('new') || text.includes('remind') || text.includes('track')) {
 
         return 'ADD_ASSIGNMENT';

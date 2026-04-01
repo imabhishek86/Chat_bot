@@ -63,6 +63,34 @@ const Sidebar = ({ assignments }) => {
                         </div>
                         <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">This Week</p>
                     </div>
+
+                    {/* Google Calendar Link */}
+                    <button 
+                        onClick={async () => {
+                            try {
+                                const res = await fetch('http://localhost:5000/api/calendar/auth');
+                                const data = await res.json();
+                                if (data.url) window.location.href = data.url;
+                            } catch (e) {
+                                alert('Could not reach backend for calendar auth');
+                            }
+                        }}
+                        className="glass-panel p-6 rounded-[2.5rem] hover-glow group flex items-center justify-between transition-all active:scale-95 text-left border-dashed border-violet-500/20"
+                    >
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 rounded-2xl bg-white/5 text-white/40 group-hover:text-violet-400 group-hover:bg-violet-500/10 transition-colors">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                    <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" />
+                                    <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 className="text-[10px] font-black text-white/30 uppercase tracking-widest group-hover:text-white/60 transition-colors">Calendar Sync</h4>
+                                <p className="text-[11px] font-bold text-white group-hover:text-violet-400 transition-colors">Connect Google</p>
+                            </div>
+                        </div>
+                        <div className="w-2 h-2 rounded-full bg-rose-500/50 group-hover:bg-violet-500 animate-pulse" />
+                    </button>
                 </div>
             </div>
         </aside>

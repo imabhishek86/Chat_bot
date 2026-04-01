@@ -28,7 +28,8 @@ const ChatContainer = ({ assignments, onAddAssignment }) => {
 
     const suggestions = [
         "Add assignment",
-        "What's due this week?"
+        "What's due this week?",
+        "What should I do next?"
     ];
 
     const scrollToBottom = () => {
