@@ -119,9 +119,52 @@ const generateTaskSuggestion = async (assignments) => {
 };
 
 
+const generateCategorizedSuggestion = async (assignments, mode) => {
+    try {
+        if (!process.env.OPENAI_API_KEY) return null;
+
+        const taskList = assignments.map(a => 
+            `- ${a.title} (Due: ${new Date(a.deadline).toDateString()}, Priority: ${a.priority || 'Medium'})`
+        ).join('\n');
+
+        let systemPrompt = "You are a productivity assistant. ";
+        if (mode === 'URGENT') {
+            systemPrompt += "The student has a deadline in less than 2 days! Be firm, direct, and slightly urgent. Focus only on the most immediate task.";
+        } else if (mode === 'WARNING') {
+            systemPrompt += "The student has more than 5 pending tasks. Be helpful, strategic, and warn them about the heavy workload. Suggest a way to break it down.";
+        } else {
+            systemPrompt += "The student is on track. Be encouraging, charismatic, and provide a single motivational sentence about their next small step.";
+        }
+
+        const response = await openai.chat.completions.create({
+            model: "gpt-3.5-turbo",
+            messages: [
+                {
+                    role: "system",
+                    content: systemPrompt
+                },
+                {
+                    role: "user",
+                    content: assignments.length > 0 
+                        ? `Here are my pending assignments:\n${taskList}\n\nProvide exactly ONE concise suggestion (max 2 sentences).`
+                        : "I have no pending assignments. Give me a short motivational quote about starting something new."
+                }
+            ],
+            max_tokens: 80
+        });
+
+        return response.choices[0].message.content.trim();
+    } catch (error) {
+        console.error('Categorized AI Suggestion Error:', error.message);
+        return null;
+    }
+};
+
+
 module.exports = {
     extractAssignmentWithAI,
     generateMotivationalMessage,
-    generateTaskSuggestion
+    generateTaskSuggestion,
+    generateCategorizedSuggestion
 };
 

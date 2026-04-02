@@ -74,9 +74,36 @@ const deleteAssignment = async (req, res) => {
     }
 };
 
+const getAISuggestion = async (req, res) => {
+    try {
+        const pending = await Assignment.find({ status: 'pending' }).sort({ deadline: 1 });
+        
+        let mode = 'MOTIVATIONAL';
+        const now = new Date();
+        const twoDaysFromNow = new Date(now.getTime() + (2 * 24 * 60 * 60 * 1000));
+
+        if (pending.some(a => new Date(a.deadline) <= twoDaysFromNow)) {
+            mode = 'URGENT';
+        } else if (pending.length > 5) {
+            mode = 'WARNING';
+        }
+
+        const openaiService = require('../services/openaiService');
+        const suggestion = await openaiService.generateCategorizedSuggestion(pending, mode);
+
+        res.json({
+            suggestion: suggestion || "Keep up the great work! You're staying on top of your schedule."
+        });
+    } catch (error) {
+        console.error('AI Suggestion API Error:', error);
+        res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+    }
+};
+
 module.exports = {
     getThisWeekAssignments,
     updateAssignmentStatus,
-    deleteAssignment
+    deleteAssignment,
+    getAISuggestion
 };
 
