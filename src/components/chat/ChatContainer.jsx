@@ -122,14 +122,14 @@ const ChatContainer = ({ assignments, onAddAssignment }) => {
                     <button
                         key={suggestion}
                         onClick={() => handleSend(suggestion)}
-                        className="whitespace-nowrap px-4 py-2 rounded-full glass-pill text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white/80 transition-all active:scale-95"
+                        className="whitespace-nowrap px-4 py-2 rounded-full glass-pill text-[10px] font-black uppercase tracking-widest text-text-secondary/40 hover:text-text-primary transition-all active:scale-95"
                     >
                         {suggestion}
                     </button>
                 ))}
             </div>
 
-            <div className="p-4 bg-white/5 border-t border-white/5">
+            <div className="p-4 bg-glass border-t border-glass-border">
                 <ChatInput 
                     input={input} 
                     setInput={setInput} 

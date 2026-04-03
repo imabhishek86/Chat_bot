@@ -127,13 +127,13 @@ const generateCategorizedSuggestion = async (assignments, mode) => {
             `- ${a.title} (Due: ${new Date(a.deadline).toDateString()}, Priority: ${a.priority || 'Medium'})`
         ).join('\n');
 
-        let systemPrompt = "You are a productivity assistant. ";
+        let systemPrompt = "You are a direct, professional study assistant. ";
         if (mode === 'URGENT') {
-            systemPrompt += "The student has a deadline in less than 2 days! Be firm, direct, and slightly urgent. Focus only on the most immediate task.";
+            systemPrompt += "The student has an immediate deadline in < 2 days. Give a sharp, urgent instruction to start the specific most urgent task NOW.";
         } else if (mode === 'WARNING') {
-            systemPrompt += "The student has more than 5 pending tasks. Be helpful, strategic, and warn them about the heavy workload. Suggest a way to break it down.";
+            systemPrompt += "The student has > 5 pending tasks. Warn them about the heavy load and suggest a strategic starting point.";
         } else {
-            systemPrompt += "The student is on track. Be encouraging, charismatic, and provide a single motivational sentence about their next small step.";
+            systemPrompt += "The student is on track. Give one simple, motivational next step for their easiest or nearest task.";
         }
 
         const response = await openai.chat.completions.create({
@@ -146,14 +146,14 @@ const generateCategorizedSuggestion = async (assignments, mode) => {
                 {
                     role: "user",
                     content: assignments.length > 0 
-                        ? `Here are my pending assignments:\n${taskList}\n\nProvide exactly ONE concise suggestion (max 2 sentences).`
-                        : "I have no pending assignments. Give me a short motivational quote about starting something new."
+                        ? `Tasks:\n${taskList}\n\nProvide ONE concise suggestion (max 20 words).`
+                        : "No tasks. Give a short 5-word motivational boost."
                 }
             ],
-            max_tokens: 80
+            max_tokens: 60
         });
 
-        return response.choices[0].message.content.trim();
+        return response.choices[0].message.content.trim().replace(/^"|"$/g, '');
     } catch (error) {
         console.error('Categorized AI Suggestion Error:', error.message);
         return null;

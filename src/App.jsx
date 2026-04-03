@@ -7,16 +7,16 @@ import ErrorState from './components/ui/ErrorState';
 import DashboardSkeleton from './components/ui/Skeleton';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 import ThemeToggle from './components/ui/ThemeToggle';
+import NotificationToast from './components/ui/NotificationToast';
 import { calculatePriority } from './utils/priority';
-
-
-
 
 function App() {
   const [assignments, setAssignments] = useState([]);
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [urgentTasks, setUrgentTasks] = useState([]);
+  const [showNotification, setShowNotification] = useState(false);
 
   // Apply theme class to document
   useEffect(() => {
@@ -32,9 +32,8 @@ function App() {
     setTheme(prev => prev === 'dark' ? 'light' : 'dark');
   };
 
-
   useEffect(() => {
-    // Simulate initial data load from localStorage with a small delay for a premium feel
+    // Simulate initial data load from localStorage
     const timer = setTimeout(() => {
       try {
         const saved = localStorage.getItem('assignments');
@@ -49,10 +48,27 @@ function App() {
     return () => clearTimeout(timer);
   }, []);
 
-
   useEffect(() => {
     localStorage.setItem('assignments', JSON.stringify(assignments));
   }, [assignments]);
+
+  // Check for urgent tasks
+  useEffect(() => {
+    if (!isLoading && assignments.length > 0) {
+      const now = new Date();
+      const urgent = assignments.filter(a => {
+        if (a.status === 'completed') return false;
+        const deadline = new Date(a.deadline);
+        const diffHours = (deadline - now) / (1000 * 60 * 60);
+        return diffHours > 0 && diffHours < 48;
+      });
+      
+      if (urgent.length > 0) {
+        setUrgentTasks(urgent);
+        setShowNotification(true);
+      }
+    }
+  }, [isLoading, assignments]);
 
   const addAssignment = (newTask) => {
     try {
@@ -78,10 +94,7 @@ function App() {
   };
 
   const deleteAssignment = async (id) => {
-    // 1. Update local state instantly
     setAssignments(prev => prev.filter(a => a.id !== id && a._id !== id));
-
-    // 2. Sync with Backend
     try {
       const mongoId = assignments.find(a => a.id === id || a._id === id)?._id || id;
       await fetch(`http://localhost:5000/api/assignments/${mongoId}`, {
@@ -92,9 +105,7 @@ function App() {
     }
   };
 
-
   const updateAssignment = async (id, updates) => {
-    // 1. Update local state instantly for a snappy UI
     setAssignments(prev => prev.map(a => {
       if (a.id === id || a._id === id) {
         const updatedTask = { ...a, ...updates };
@@ -106,7 +117,6 @@ function App() {
       return a;
     }));
 
-    // 2. Sync with Backend if it's a status update
     if (updates.status) {
       try {
         const mongoId = assignments.find(a => a.id === id || a._id === id)?._id || id;
@@ -121,9 +131,19 @@ function App() {
     }
   };
 
+  if (isLoading) return <DashboardSkeleton theme={theme} />;
+  if (error) return <ErrorState message={error} onRetry={() => window.location.reload()} />;
+
   return (
     <div className="min-h-screen bg-bg-primary transition-all duration-500 overflow-x-hidden">
       <div className="max-w-[1600px] mx-auto px-6 lg:px-12">
+        
+        <NotificationToast 
+          show={showNotification} 
+          urgentTasks={urgentTasks} 
+          onClose={() => setShowNotification(false)} 
+        />
+
         <header className="pt-12 pb-16 text-center animate-slide-up relative">
           <div className="absolute right-0 top-12">
             <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
@@ -154,8 +174,7 @@ function App() {
           </main>
         </ErrorBoundary>
 
-        
-        <footer className="py-12 text-center opacity-20 border-t border-white/5">
+        <footer className="py-12 text-center opacity-20 border-t border-glass-border">
           <p className="text-sm font-bold tracking-widest uppercase">© 2026 StudyFlow • Intelligence in Education</p>
         </footer>
       </div>

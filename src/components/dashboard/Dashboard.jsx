@@ -28,7 +28,7 @@ const Dashboard = ({ assignments, onDelete, onUpdate }) => {
         <div className="stack-gap w-full">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end px-2 mb-8 gap-4">
                 <div>
-                    <h2 className="text-white/90 text-2xl font-bold">Dashboard Overview</h2>
+                    <h2 className="text-text-primary text-2xl font-bold">Dashboard Overview</h2>
                     <p className="text-text-secondary text-sm mt-1">Track your academic progress</p>
                 </div>
 
@@ -63,7 +63,7 @@ const Dashboard = ({ assignments, onDelete, onUpdate }) => {
 
             <div className="px-2 mb-8">
                 <div className="flex flex-col gap-6 mb-8">
-                    <h3 className="text-xs font-black text-white/20 uppercase tracking-[0.3em]">
+                    <h3 className="text-xs font-black text-text-primary/20 uppercase tracking-[0.3em]">
                         {viewMode === 'list' ? 'Manage Tasks' : viewMode === 'calendar' ? 'Deadline Calendar' : 'Insight Analytics'}
                     </h3>
 

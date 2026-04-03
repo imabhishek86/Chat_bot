@@ -11,17 +11,22 @@
   --text-secondary: hsl(240, 5%, 45%);
   
   /* Glass Effects - Light */
-  --glass: hsla(0, 0%, 0%, 0.03);
-  --glass-hover: hsla(0, 0%, 0%, 0.06);
-  --glass-border: hsla(0, 0%, 0%, 0.08);
+  --glass: hsla(0, 0%, 100%, 0.8);
+  --glass-hover: hsla(0, 0%, 100%, 1);
+  --glass-border: hsla(0, 0%, 0%, 0.05);
   --glass-border-focus: hsla(263, 70%, 50%, 0.2);
   
   /* Shared Constants */
-  --radius-xl: 24px;
-  --radius-2xl: 32px;
-  --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-  --shadow-premium: 0 10px 30px rgba(0, 0, 0, 0.05);
-  --shadow-neon: 0 0 20px hsla(263, 90%, 65%, 0.1);
+  --radius-xl: 32px;
+  --radius-2xl: 48px;
+  --transition-smooth: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  --shadow-premium: 0 25px 80px rgba(0, 0, 0, 0.15);
+  --shadow-neon: 0 0 40px hsla(263, 90%, 65%, 0.15);
+  
+  /* Advanced Typography */
+  --tracking-tight: -0.025em;
+  --tracking-wide: 0.15em;
+  --tracking-extrawide: 0.4em;
 }
 
 .dark {

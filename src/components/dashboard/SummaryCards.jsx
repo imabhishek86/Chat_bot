@@ -51,7 +51,7 @@ const SummaryCards = ({ assignments }) => {
             )
         },
         {
-            title: "Completed",
+            title: "Completed Tasks",
             value: stats.completed,
             colorClass: { bg: 'bg-emerald-500/10', text: 'text-emerald-400', border: 'border-emerald-500/20', line: 'bg-emerald-500' },
             icon: (
@@ -61,7 +61,7 @@ const SummaryCards = ({ assignments }) => {
             )
         },
         {
-            title: "Pending",
+            title: "Pending Tasks",
             value: stats.pending,
             colorClass: { bg: 'bg-amber-500/10', text: 'text-amber-400', border: 'border-amber-500/20', line: 'bg-amber-500' },
             icon: (

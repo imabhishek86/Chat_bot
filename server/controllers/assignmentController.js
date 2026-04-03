@@ -34,11 +34,19 @@ const updateAssignmentStatus = async (req, res) => {
             return res.status(400).json({ status: 'error', message: 'Invalid status value' });
         }
 
-        const assignment = await Assignment.findByIdAndUpdate(
-            id,
-            { status },
-            { new: true, runValidators: true }
-        );
+        const assignment = await Assignment.findById(id);
+        if (!assignment) {
+            return res.status(404).json({ status: 'error', message: 'Assignment not found' });
+        }
+
+        assignment.status = status;
+        if (status === 'completed') {
+            assignment.completedAt = new Date();
+        } else {
+            assignment.completedAt = undefined;
+        }
+
+        await assignment.save();
 
         if (!assignment) {
             return res.status(404).json({ status: 'error', message: 'Assignment not found' });
@@ -78,21 +86,22 @@ const getAISuggestion = async (req, res) => {
     try {
         const pending = await Assignment.find({ status: 'pending' }).sort({ deadline: 1 });
         
-        let mode = 'MOTIVATIONAL';
+        let type = 'normal';
         const now = new Date();
         const twoDaysFromNow = new Date(now.getTime() + (2 * 24 * 60 * 60 * 1000));
 
         if (pending.some(a => new Date(a.deadline) <= twoDaysFromNow)) {
-            mode = 'URGENT';
+            type = 'urgent';
         } else if (pending.length > 5) {
-            mode = 'WARNING';
+            type = 'warning';
         }
 
         const openaiService = require('../services/openaiService');
-        const suggestion = await openaiService.generateCategorizedSuggestion(pending, mode);
+        const message = await openaiService.generateCategorizedSuggestion(pending, type.toUpperCase());
 
         res.json({
-            suggestion: suggestion || "Keep up the great work! You're staying on top of your schedule."
+            message: message || "Keep up the great work! You're staying on top of your schedule.",
+            type: type
         });
     } catch (error) {
         console.error('AI Suggestion API Error:', error);

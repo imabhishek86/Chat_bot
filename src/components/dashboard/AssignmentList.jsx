@@ -17,7 +17,7 @@ const AssignmentList = ({ assignments, onDelete, onUpdate }) => {
                     </svg>
                 </div>
                 <div>
-                    <h3 className="text-xl mb-2 text-white/90">No tasks found</h3>
+                    <h3 className="text-xl mb-2 text-text-primary">No tasks found</h3>
                     <p className="text-text-secondary max-w-xs mx-auto">Your schedule looks clear! Use the AI assistant to add your first assignment.</p>
                 </div>
             </motion.div>
@@ -42,16 +42,19 @@ const AssignmentList = ({ assignments, onDelete, onUpdate }) => {
                             className={`glass-panel p-6 rounded-[2rem] hover-glow relative group transition-all duration-500 ${isCompleted ? 'opacity-50 grayscale-[0.5]' : ''}`}
                         >
                             <div className="flex justify-between items-start mb-6">
-                                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${
-                                    priority.toLowerCase() === 'high' ? 'bg-rose-500/10 text-rose-400 border-rose-500/20 shadow-[0_0_10px_rgba(244,63,94,0.1)]' :
+                                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border flex items-center gap-1.5 ${
+                                    priority.toLowerCase() === 'high' ? 'bg-rose-500/10 text-rose-400 border-rose-500/20 shadow-[0_0_15px_rgba(244,63,94,0.15)] animate-pulse' :
                                     priority.toLowerCase() === 'medium' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20 shadow-[0_0_10px_rgba(245,158,11,0.1)]' :
                                     'bg-sky-500/10 text-sky-400 border-sky-500/20 shadow-[0_0_10px_rgba(14,165,233,0.1)]'
                                 }`}>
+                                    {priority.toLowerCase() === 'high' && (
+                                        <span className="w-1 h-1 rounded-full bg-rose-400" />
+                                    )}
                                     {priority}
                                 </span>
                                 <button 
                                     onClick={() => onDelete(item.id)} 
-                                    className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-rose-500/10 hover:text-rose-400 text-white/20 transition-all opacity-0 group-hover:opacity-100"
+                                    className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-rose-500/10 hover:text-rose-400 text-text-secondary/20 transition-all opacity-0 group-hover:opacity-100"
                                     title="Delete Assignment"
                                 >
                                     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -60,12 +63,12 @@ const AssignmentList = ({ assignments, onDelete, onUpdate }) => {
                                 </button>
                             </div>
                             
-                            <h4 className={`text-lg font-bold mb-8 leading-tight transition-all duration-500 ${isCompleted ? 'line-through text-white/30' : 'text-white/90'}`}>
+                            <h4 className={`text-lg font-bold mb-8 leading-tight transition-all duration-500 ${isCompleted ? 'line-through text-text-secondary/40' : 'text-text-primary'}`}>
                                 {item.title}
                             </h4>
                             
-                            <div className="flex justify-between items-center mt-auto pt-4 border-t border-white/5">
-                                <div className="flex items-center gap-2 text-white/40 font-medium text-xs">
+                            <div className="flex justify-between items-center mt-auto pt-4 border-t border-glass-border">
+                                <div className="flex items-center gap-2 text-text-secondary/60 font-medium text-xs">
                                     <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" className="opacity-50">
                                         <circle cx="12" cy="12" r="10" />
                                         <path d="M12 6v6l4 2" />
@@ -76,7 +79,7 @@ const AssignmentList = ({ assignments, onDelete, onUpdate }) => {
                                     className={`px-4 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all active:scale-95 border ${
                                         isCompleted 
                                         ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.1)]' 
-                                        : 'bg-white/5 text-white/60 hover:bg-white/10 border-white/10'
+                                        : 'bg-text-secondary/5 text-text-secondary/60 hover:bg-text-secondary/10 border-glass-border'
                                     }`}
                                     onClick={() => onUpdate(item.id, { status: isCompleted ? 'pending' : 'completed' })}
                                 >

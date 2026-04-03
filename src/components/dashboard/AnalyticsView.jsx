@@ -24,9 +24,9 @@ const AnalyticsView = ({ assignments }) => {
     }
 
     assignments.filter(a => a.status === 'completed').forEach(a => {
-      const completedDate = new Date(a.updatedAt || a.createdAt);
+      const completedDate = new Date(a.completedAt || a.updatedAt || a.createdAt);
       const diffDays = Math.floor((now - completedDate) / (1000 * 60 * 60 * 24));
-      if (diffDays <= 28) {
+      if (diffDays >= 0 && diffDays <= 28) {
         const weekNum = 4 - Math.floor(diffDays / 7);
         const label = `Week ${weekNum}`;
         if (weeks[label] !== undefined) weeks[label]++;
@@ -60,16 +60,16 @@ const AnalyticsView = ({ assignments }) => {
       {/* Header Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="glass-panel p-6 rounded-[2.5rem]">
-          <h4 className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-2">Completion Rate</h4>
+          <h4 className="text-[10px] font-black text-text-secondary uppercase tracking-widest mb-2">Completion Rate</h4>
           <div className="flex items-baseline gap-2">
-            <span className="text-4xl font-black text-white">{analyticsData.completionRate}%</span>
+            <span className="text-4xl font-black text-text-primary">{analyticsData.completionRate}%</span>
             <span className="text-xs font-bold text-emerald-400">Total Progress</span>
           </div>
         </div>
         <div className="glass-panel p-6 rounded-[2.5rem]">
-          <h4 className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-2">Efficiency</h4>
+          <h4 className="text-[10px] font-black text-text-secondary uppercase tracking-widest mb-2">Efficiency</h4>
           <div className="flex items-baseline gap-2">
-            <span className="text-4xl font-black text-white">
+            <span className="text-4xl font-black text-text-primary">
               {analyticsData.completed}/{analyticsData.total}
             </span>
             <span className="text-xs font-bold text-violet-400">Tasks Sync</span>

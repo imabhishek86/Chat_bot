@@ -3,6 +3,20 @@ import { calculatePriority } from '../../utils/priority';
 
 
 const Sidebar = ({ assignments }) => {
+    const [streak, setStreak] = React.useState(0);
+
+    React.useEffect(() => {
+        const fetchStreak = async () => {
+            try {
+                const res = await fetch('http://localhost:5000/api/stats/streak');
+                const data = await res.json();
+                setStreak(data.streak || 0);
+            } catch (e) {
+                console.error('Failed to fetch streak');
+            }
+        };
+        fetchStreak();
+    }, [assignments]);
 
     const total = assignments.length;
     
@@ -22,7 +36,7 @@ const Sidebar = ({ assignments }) => {
     return (
         <aside className="w-full xl:w-[380px] flex flex-col gap-8">
             <div className="stack-gap px-2">
-                <h3 className="text-xs font-bold text-white/20 uppercase tracking-[0.3em]">Quick Insights</h3>
+                <h3 className="text-xs font-bold text-text-secondary/40 uppercase tracking-[0.3em]">Quick Insights</h3>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-1 gap-6">
                     {/* Total Assignments Card */}
@@ -33,9 +47,9 @@ const Sidebar = ({ assignments }) => {
                                     <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
                                 </svg>
                             </div>
-                            <span className="text-4xl font-black text-white group-hover:scale-110 transition-transform">{total}</span>
+                            <span className="text-4xl font-black text-text-primary group-hover:scale-110 transition-transform">{total}</span>
                         </div>
-                        <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">Total Tasks</p>
+                        <p className="text-[10px] font-black text-text-secondary/40 uppercase tracking-widest">Total Tasks</p>
                     </div>
 
                     {/* High Priority Card */}
@@ -46,9 +60,9 @@ const Sidebar = ({ assignments }) => {
                                     <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                 </svg>
                             </div>
-                            <span className="text-4xl font-black text-white group-hover:scale-110 transition-transform">{highPriority}</span>
+                            <span className="text-4xl font-black text-text-primary group-hover:scale-110 transition-transform">{highPriority}</span>
                         </div>
-                        <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">Urgent Actions</p>
+                        <p className="text-[10px] font-black text-text-secondary/40 uppercase tracking-widest">Urgent Actions</p>
                     </div>
 
                     {/* Due This Week Card */}
@@ -59,9 +73,27 @@ const Sidebar = ({ assignments }) => {
                                     <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
                             </div>
-                            <span className="text-4xl font-black text-white group-hover:scale-110 transition-transform">{dueThisWeek}</span>
+                            <span className="text-4xl font-black text-text-primary group-hover:scale-110 transition-transform">{dueThisWeek}</span>
                         </div>
-                        <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">This Week</p>
+                        <p className="text-[10px] font-black text-text-secondary/40 uppercase tracking-widest">This Week</p>
+                    </div>
+
+                    {/* Daily Streak Card */}
+                    <div className="glass-panel p-6 rounded-[2.5rem] hover-glow group bg-gradient-to-br from-orange-500/5 to-transparent">
+                        <div className="flex justify-between items-start mb-4">
+                            <div className="p-3 rounded-2xl bg-orange-500/10 text-orange-400 border border-orange-500/20">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                    <path d="M12 2c0 0-2 4-2 6s1 3 1 3 M12 2c0 0 2 4 2 6s-1 3-1 3 M12 22s-4-2-4-6c0-3 2-6 4-10 2 4 4 7 4 10 0 4-4 6-4 6z" />
+                                </svg>
+                            </div>
+                            <div className="flex flex-col items-end">
+                                <span className="text-4xl font-black text-text-primary group-hover:scale-110 transition-transform flex items-center gap-2">
+                                    {streak}
+                                    <span className="text-orange-500 text-xl animate-pulse">🔥</span>
+                                </span>
+                            </div>
+                        </div>
+                        <p className="text-[10px] font-black text-text-secondary/40 uppercase tracking-widest">Daily Streak</p>
                     </div>
 
                     {/* Google Calendar Link */}
@@ -85,8 +117,8 @@ const Sidebar = ({ assignments }) => {
                                 </svg>
                             </div>
                             <div>
-                                <h4 className="text-[10px] font-black text-white/30 uppercase tracking-widest group-hover:text-white/60 transition-colors">Calendar Sync</h4>
-                                <p className="text-[11px] font-bold text-white group-hover:text-violet-400 transition-colors">Connect Google</p>
+                                <h4 className="text-[10px] font-black text-text-secondary/30 uppercase tracking-widest group-hover:text-text-secondary transition-colors">Calendar Sync</h4>
+                                <p className="text-[11px] font-bold text-text-primary group-hover:text-violet-500 transition-colors">Connect Google</p>
                             </div>
                         </div>
                         <div className="w-2 h-2 rounded-full bg-rose-500/50 group-hover:bg-violet-500 animate-pulse" />
