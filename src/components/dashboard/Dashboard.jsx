@@ -5,6 +5,7 @@ import CalendarView from './CalendarView';
 import AnalyticsView from './AnalyticsView';
 import ProductivityScore from './ProductivityScore';
 import Filters from '../ui/Filters';
+import StudyPlannerView from './StudyPlannerView';
 
 import './Dashboard.css';
 
@@ -51,6 +52,12 @@ const Dashboard = ({ assignments, onDelete, onUpdate }) => {
                     >
                         Analytics
                     </button>
+                    <button 
+                        className={`view-btn ${viewMode === 'planner' ? 'active' : ''}`}
+                        onClick={() => setViewMode('planner')}
+                    >
+                        AI Plan
+                    </button>
                 </div>
             </div>
 
@@ -64,7 +71,7 @@ const Dashboard = ({ assignments, onDelete, onUpdate }) => {
             <div className="px-2 mb-8">
                 <div className="flex flex-col gap-6 mb-8">
                     <h3 className="text-xs font-black text-text-primary/20 uppercase tracking-[0.3em]">
-                        {viewMode === 'list' ? 'Manage Tasks' : viewMode === 'calendar' ? 'Deadline Calendar' : 'Insight Analytics'}
+                        {viewMode === 'list' ? 'Manage Tasks' : viewMode === 'calendar' ? 'Deadline Calendar' : viewMode === 'analytics' ? 'Insight Analytics' : 'Strategic Roadmap'}
                     </h3>
 
                     {viewMode === 'list' && (
@@ -91,8 +98,10 @@ const Dashboard = ({ assignments, onDelete, onUpdate }) => {
                         onDelete={onDelete} 
                         onUpdate={onUpdate} 
                     />
-                ) : (
+                ) : viewMode === 'analytics' ? (
                     <AnalyticsView assignments={assignments} />
+                ) : (
+                    <StudyPlannerView />
                 )}
             </div>
         </div>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const SummaryCard = ({ title, value, icon, colorClass, delay }) => (
+const SummaryCard = ({ title, value, icon, colorClass, delay, useTheme }) => (
     <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -9,7 +9,10 @@ const SummaryCard = ({ title, value, icon, colorClass, delay }) => (
         className="glass-panel p-6 rounded-[2.5rem] hover-glow group flex flex-col gap-4"
     >
         <div className="flex justify-between items-center">
-            <div className={`p-4 rounded-2xl ${colorClass.bg} ${colorClass.text} border ${colorClass.border} shadow-lg transition-transform group-hover:scale-110 duration-500`}>
+            <div 
+                className={`p-4 rounded-2xl border shadow-lg transition-transform group-hover:scale-110 duration-500 ${!useTheme ? colorClass.bg + ' ' + colorClass.text + ' ' + colorClass.border : ''}`}
+                style={useTheme ? { backgroundColor: 'var(--primary-glow)', color: 'var(--primary-solid)', borderColor: 'var(--glass-border)' } : {}}
+            >
                 {icon}
             </div>
             <span className="text-4xl font-black text-text-primary tracking-tighter">
@@ -24,7 +27,8 @@ const SummaryCard = ({ title, value, icon, colorClass, delay }) => (
                     initial={{ width: 0 }}
                     animate={{ width: '100%' }}
                     transition={{ duration: 1, delay: delay + 0.3 }}
-                    className={`h-full ${colorClass.line}`} 
+                    className={`h-full ${!useTheme ? colorClass.line : ''}`} 
+                    style={useTheme ? { backgroundColor: 'var(--primary-solid)' } : {}}
                 />
             </div>
         </div>
@@ -43,7 +47,8 @@ const SummaryCards = ({ assignments }) => {
         {
             title: "Total Tasks",
             value: stats.total,
-            colorClass: { bg: 'bg-violet-500/10', text: 'text-violet-400', border: 'border-violet-500/20', line: 'bg-violet-500' },
+            useTheme: true,
+            colorClass: {}, // Handled by useTheme
             icon: (
                 <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />

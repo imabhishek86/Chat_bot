@@ -7,6 +7,7 @@ const assignmentRoutes = require('./routes/assignmentRoutes');
 const statsRoutes = require('./routes/statsRoutes');
 const assignmentController = require('./controllers/assignmentController');
 const calendarRoutes = require('./routes/calendarRoutes');
+const plannerRoutes = require('./routes/plannerRoutes');
 const reminderService = require('./services/reminderService');
 
 const app = express();
@@ -34,6 +35,7 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/assignments', assignmentRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/calendar', calendarRoutes);
+app.use('/api/planner', plannerRoutes);
 
 app.get('/api/suggestions', assignmentController.getAISuggestion);
 

@@ -161,10 +161,72 @@ const generateCategorizedSuggestion = async (assignments, mode) => {
 };
 
 
+/**
+ * Generates a 7-day study plan based on assignments
+ */
+const generateStudyPlan = async (assignments) => {
+    try {
+        if (!assignments || assignments.length === 0) {
+            return {
+                plan: [
+                    { day: "Monday", tasks: ["Clear! No pending assignments."], focus: "Maintenance" },
+                    { day: "Tuesday", tasks: [], focus: "Maintenance" },
+                    { day: "Wednesday", tasks: [], focus: "Maintenance" },
+                    { day: "Thursday", tasks: [], focus: "Maintenance" },
+                    { day: "Friday", tasks: [], focus: "Maintenance" },
+                    { day: "Saturday", tasks: [], focus: "Maintenance" },
+                    { day: "Sunday", tasks: [], focus: "Rest" }
+                ],
+                motivation: "You're all caught up! Take some time to relax."
+            };
+        }
+
+        const taskSummary = assignments.map(a => 
+            `- ${a.title} (Deadline: ${new Date(a.deadline).toDateString()}, Priority: ${a.priority})`
+        ).join('\n');
+
+        const prompt = `
+        You are an expert Academic Success Coach. 
+        Given the following assignments, create a strategic 7-day study plan (starting today).
+        
+        Assignments:
+        ${taskSummary}
+        
+        Rules:
+        1. Prioritize tasks with closer deadlines and "High" priority. 
+        2. Distribute larger tasks logically.
+        3. Include a specific "Focus" area for each day.
+        4. Return ONLY a JSON object with this structure:
+        {
+          "plan": [
+            { "day": "Day Name", "tasks": ["Task A", "Task B"], "focus": "Overall focus" }
+          ],
+          "motivation": "A short motivational quote"
+        }
+        
+        Keep tasks concise and actionable. Ensure the plan covers exactly 7 days.
+        `;
+
+        const response = await openai.chat.completions.create({
+            model: "gpt-3.5-turbo",
+            messages: [{ role: "user", content: prompt }],
+            temperature: 0.7,
+            max_tokens: 1000,
+            response_format: { type: "json_object" }
+        });
+
+        return JSON.parse(response.choices[0].message.content);
+    } catch (error) {
+        console.error('Error generating study plan:', error);
+        throw error;
+    }
+};
+
 module.exports = {
     extractAssignmentWithAI,
     generateMotivationalMessage,
     generateTaskSuggestion,
-    generateCategorizedSuggestion
+    generateCategorizedSuggestion,
+    generateStudyPlan
 };
 

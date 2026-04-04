@@ -42,7 +42,7 @@ const Sidebar = ({ assignments }) => {
                     {/* Total Assignments Card */}
                     <div className="glass-panel p-6 rounded-[2.5rem] hover-glow group">
                         <div className="flex justify-between items-start mb-4">
-                            <div className="p-3 rounded-2xl bg-violet-500/10 text-violet-400 border border-violet-500/20">
+                            <div className="p-3 rounded-2xl border transition-colors shadow-lg" style={{ backgroundColor: 'var(--primary-glow)', color: 'var(--primary-solid)', borderColor: 'var(--glass-border)' }}>
                                 <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5">
                                     <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
                                 </svg>
@@ -52,7 +52,7 @@ const Sidebar = ({ assignments }) => {
                         <p className="text-[10px] font-black text-text-secondary/40 uppercase tracking-widest">Total Tasks</p>
                     </div>
 
-                    {/* High Priority Card */}
+                    {/* High Priority Card handles itself with ROSE */}
                     <div className="glass-panel p-6 rounded-[2.5rem] hover-glow group">
                         <div className="flex justify-between items-start mb-4">
                             <div className="p-3 rounded-2xl bg-rose-500/10 text-rose-400 border border-rose-500/20">
@@ -65,7 +65,7 @@ const Sidebar = ({ assignments }) => {
                         <p className="text-[10px] font-black text-text-secondary/40 uppercase tracking-widest">Urgent Actions</p>
                     </div>
 
-                    {/* Due This Week Card */}
+                    {/* Due This Week handles itself with EMERALD */}
                     <div className="glass-panel p-6 rounded-[2.5rem] hover-glow group">
                         <div className="flex justify-between items-start mb-4">
                             <div className="p-3 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
@@ -78,7 +78,7 @@ const Sidebar = ({ assignments }) => {
                         <p className="text-[10px] font-black text-text-secondary/40 uppercase tracking-widest">This Week</p>
                     </div>
 
-                    {/* Daily Streak Card */}
+                    {/* Daily Streak handles itself with ORANGE */}
                     <div className="glass-panel p-6 rounded-[2.5rem] hover-glow group bg-gradient-to-br from-orange-500/5 to-transparent">
                         <div className="flex justify-between items-start mb-4">
                             <div className="p-3 rounded-2xl bg-orange-500/10 text-orange-400 border border-orange-500/20">
@@ -96,7 +96,7 @@ const Sidebar = ({ assignments }) => {
                         <p className="text-[10px] font-black text-text-secondary/40 uppercase tracking-widest">Daily Streak</p>
                     </div>
 
-                    {/* Google Calendar Link */}
+                    {/* Google Calendar Link - Unified with Theme */}
                     <button 
                         onClick={async () => {
                             try {
@@ -107,10 +107,11 @@ const Sidebar = ({ assignments }) => {
                                 alert('Could not reach backend for calendar auth');
                             }
                         }}
-                        className="glass-panel p-6 rounded-[2.5rem] hover-glow group flex items-center justify-between transition-all active:scale-95 text-left border-dashed border-violet-500/20"
+                        className="glass-panel p-6 rounded-[2.5rem] hover-glow group flex items-center justify-between transition-all active:scale-95 text-left border-dashed"
+                        style={{ borderColor: 'var(--primary-glow)' }}
                     >
                         <div className="flex items-center gap-4">
-                            <div className="p-3 rounded-2xl bg-white/5 text-white/40 group-hover:text-violet-400 group-hover:bg-violet-500/10 transition-colors">
+                            <div className="p-3 rounded-2xl bg-white/5 text-text-secondary/20 transition-colors shadow-lg group-hover:scale-110" style={{ color: 'var(--primary-solid)', backgroundColor: 'var(--primary-glow)', borderColor: 'var(--glass-border)' }}>
                                 <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5">
                                     <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" />
                                     <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
@@ -118,10 +119,10 @@ const Sidebar = ({ assignments }) => {
                             </div>
                             <div>
                                 <h4 className="text-[10px] font-black text-text-secondary/30 uppercase tracking-widest group-hover:text-text-secondary transition-colors">Calendar Sync</h4>
-                                <p className="text-[11px] font-bold text-text-primary group-hover:text-violet-500 transition-colors">Connect Google</p>
+                                <p className="text-[11px] font-bold text-text-primary group-hover:text-primary-solid transition-colors" style={{ color: 'var(--primary-solid)' }}>Connect Google</p>
                             </div>
                         </div>
-                        <div className="w-2 h-2 rounded-full bg-rose-500/50 group-hover:bg-violet-500 animate-pulse" />
+                        <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: 'var(--primary-solid)' }} />
                     </button>
                 </div>
             </div>

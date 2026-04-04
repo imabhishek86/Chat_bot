@@ -8,25 +8,37 @@ import DashboardSkeleton from './components/ui/Skeleton';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 import ThemeToggle from './components/ui/ThemeToggle';
 import NotificationToast from './components/ui/NotificationToast';
+import ThemeSwitcher from './components/ui/ThemeSwitcher';
 import { calculatePriority } from './utils/priority';
 
 function App() {
   const [assignments, setAssignments] = useState([]);
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+  const [palette, setPalette] = useState(localStorage.getItem('palette') || 'violet');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [urgentTasks, setUrgentTasks] = useState([]);
   const [showNotification, setShowNotification] = useState(false);
 
-  // Apply theme class to document
+  // Apply theme classes to document
   useEffect(() => {
+    const root = document.documentElement;
+    
+    // Manage Mode
     if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
+      root.classList.add('dark');
     } else {
-      document.documentElement.classList.remove('dark');
+      root.classList.remove('dark');
     }
+    
+    // Manage Palette
+    const paletteClasses = ['theme-violet', 'theme-ocean', 'theme-emerald', 'theme-rose', 'theme-amber'];
+    root.classList.remove(...paletteClasses);
+    root.classList.add(`theme-${palette}`);
+
     localStorage.setItem('theme', theme);
-  }, [theme]);
+    localStorage.setItem('palette', palette);
+  }, [theme, palette]);
 
   const toggleTheme = () => {
     setTheme(prev => prev === 'dark' ? 'light' : 'dark');
@@ -145,10 +157,11 @@ function App() {
         />
 
         <header className="pt-12 pb-16 text-center animate-slide-up relative">
-          <div className="absolute right-0 top-12">
+          <div className="absolute right-0 top-12 flex items-center gap-6">
+            <ThemeSwitcher currentPalette={palette} onPaletteChange={setPalette} />
             <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
           </div>
-          <h1 className="bg-gradient-to-r from-violet-400 to-emerald-400 bg-clip-text text-transparent inline-block pb-2">
+          <h1 className="bg-gradient-to-r from-violet-400 to-emerald-400 bg-clip-text text-transparent inline-block pb-2" style={{ backgroundImage: `linear-gradient(to right, var(--primary-solid), var(--accent-secondary))` }}>
             StudyFlow
           </h1>
           <p className="text-text-secondary text-xs mt-2 font-black tracking-[0.4em] uppercase opacity-60">

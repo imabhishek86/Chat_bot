@@ -11,7 +11,7 @@ const AssignmentList = ({ assignments, onDelete, onUpdate }) => {
                 animate={{ opacity: 1, y: 0 }}
                 className="glass-panel p-16 rounded-[2.5rem] text-center flex flex-col items-center gap-6"
             >
-                <div className="w-20 h-20 bg-violet-500/10 text-violet-400 rounded-3xl flex items-center justify-center mb-2">
+                <div className="w-20 h-20 rounded-3xl flex items-center justify-center mb-2 shadow-lg" style={{ backgroundColor: 'var(--primary-glow)', color: 'var(--primary-solid)', borderColor: 'var(--glass-border)' }}>
                     <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" strokeWidth="1.5">
                         <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
                     </svg>

@@ -106,9 +106,9 @@ const ChatContainer = ({ assignments, onAddAssignment }) => {
                             className="flex justify-start"
                         >
                             <div className="glass-pill px-5 py-3 rounded-3xl rounded-tl-none flex gap-2 items-center">
-                                <motion.span animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1 }} className="w-1.5 h-1.5 bg-violet-400 rounded-full"></motion.span>
-                                <motion.span animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-1.5 h-1.5 bg-violet-400 rounded-full"></motion.span>
-                                <motion.span animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1, delay: 0.4 }} className="w-1.5 h-1.5 bg-violet-400 rounded-full"></motion.span>
+                                <motion.span animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1 }} className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'var(--primary-solid)' }}></motion.span>
+                                <motion.span animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'var(--primary-solid)' }}></motion.span>
+                                <motion.span animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1, delay: 0.4 }} className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'var(--primary-solid)' }}></motion.span>
                             </div>
                         </motion.div>
                     )}
