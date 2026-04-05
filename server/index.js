@@ -8,6 +8,8 @@ const statsRoutes = require('./routes/statsRoutes');
 const assignmentController = require('./controllers/assignmentController');
 const calendarRoutes = require('./routes/calendarRoutes');
 const plannerRoutes = require('./routes/plannerRoutes');
+const riskRoutes = require('./routes/riskRoutes');
+const breakdownRoutes = require('./routes/breakdownRoutes');
 const reminderService = require('./services/reminderService');
 
 const app = express();
@@ -36,6 +38,8 @@ app.use('/api/assignments', assignmentRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/calendar', calendarRoutes);
 app.use('/api/planner', plannerRoutes);
+app.use('/api/risk', riskRoutes);
+app.use('/api/breakdown', breakdownRoutes);
 
 app.get('/api/suggestions', assignmentController.getAISuggestion);
 

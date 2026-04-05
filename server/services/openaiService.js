@@ -222,11 +222,90 @@ const generateStudyPlan = async (assignments) => {
     }
 };
 
+/**
+ * Predicts risk for a set of assignments based on deadlines and total workload.
+ */
+const predictRisk = async (assignments) => {
+    try {
+        if (!assignments || assignments.length === 0) return [];
+
+        const taskCtx = assignments.map(a => 
+            `- ID: ${a._id || a.id}, Title: ${a.title}, Deadline: ${new Date(a.deadline).toDateString()}, Priority: ${a.priority}`
+        ).join('\n');
+
+        const prompt = `
+        Analyze this student's pending workload and identify assignments that are "At Risk" of being missed.
+        
+        Current Date: ${new Date().toDateString()}
+        Tasks:
+        ${taskCtx}
+        
+        Risk Rules:
+        1. Consider workload density (too many tasks due around the same time).
+        2. High priority tasks with < 3 days are high risk.
+        3. Medium/Low priority tasks with < 2 days are at risk.
+        4. If more than 5 tasks are due in a 2-day window, mark ALL as "at risk".
+        
+        Return ONLY a JSON array of objects:
+        [
+          { "id": "task_id_here", "risk": true, "message": "Short warning (max 10 words)" }
+        ]
+        Include ONLY tasks that ARE at risk.
+        `;
+
+        const response = await openai.chat.completions.create({
+            model: "gpt-3.5-turbo",
+            messages: [{ role: "user", content: prompt }],
+            response_format: { type: "json_object" }
+        });
+
+        const parsed = JSON.parse(response.choices[0].message.content);
+        return Array.isArray(parsed) ? parsed : (parsed.risks || []);
+    } catch (error) {
+        console.error('Risk Prediction Error:', error);
+        return [];
+    }
+};
+
+/**
+ * Breaks down a complex task into actionable sub-tasks.
+ */
+const breakDownTask = async (title) => {
+    try {
+        if (!title) return [];
+
+        const prompt = `
+        Break down the following academic task into exactly 5 granular, actionable sub-tasks.
+        
+        Task: ${title}
+        
+        Rule:
+        - Return ONLY a JSON array of strings.
+        - Steps should be logical and chronological.
+        - Each step should be max 8 words.
+        `;
+
+        const response = await openai.chat.completions.create({
+            model: "gpt-3.5-turbo",
+            messages: [{ role: "user", content: prompt }],
+            response_format: { type: "json_object" }
+        });
+
+        const parsed = JSON.parse(response.choices[0].message.content);
+        return Array.isArray(parsed) ? parsed : (parsed.steps || parsed.subtasks || []);
+    } catch (error) {
+        console.error('Task Breakdown Error:', error);
+        return [];
+    }
+};
+
 module.exports = {
     extractAssignmentWithAI,
     generateMotivationalMessage,
     generateTaskSuggestion,
     generateCategorizedSuggestion,
-    generateStudyPlan
+    generateStudyPlan,
+    predictRisk,
+    breakDownTask
 };
 

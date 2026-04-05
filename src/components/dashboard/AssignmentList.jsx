@@ -1,7 +1,50 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const AssignmentList = ({ assignments, onDelete, onUpdate }) => {
+    const [risks, setRisks] = useState({});
+    const [expandedTaskId, setExpandedTaskId] = useState(null);
+    const [subTasks, setSubTasks] = useState({});
+    const [isBreakingDown, setIsBreakingDown] = useState(false);
+
+    useEffect(() => {
+        const fetchRisks = async () => {
+            try {
+                const res = await fetch('http://localhost:5000/api/risk');
+                const data = await res.json();
+                const riskMap = {};
+                data.forEach(r => { riskMap[r.id] = r; });
+                setRisks(riskMap);
+            } catch (err) {
+                console.error('Risk Fetch Error:', err);
+            }
+        };
+        if (assignments.length > 0) fetchRisks();
+    }, [assignments]);
+
+    const handleBreakdown = async (taskId, title) => {
+        if (subTasks[taskId]) {
+            setExpandedTaskId(expandedTaskId === taskId ? null : taskId);
+            return;
+        }
+
+        setIsBreakingDown(true);
+        try {
+            const res = await fetch('http://localhost:5000/api/breakdown', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title })
+            });
+            const data = await res.json();
+            setSubTasks(prev => ({ ...prev, [taskId]: data }));
+            setExpandedTaskId(taskId);
+        } catch (e) {
+            console.error('Breakdown Error:', e);
+        } finally {
+            setIsBreakingDown(false);
+        }
+    };
+
     const sortedAssignments = [...assignments].sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
 
     if (assignments.length === 0) {
@@ -30,6 +73,7 @@ const AssignmentList = ({ assignments, onDelete, onUpdate }) => {
                 {sortedAssignments.map((item, index) => {
                     const priority = item.priority || 'Low';
                     const isCompleted = item.status === 'completed';
+                    const risk = risks[item._id || item.id];
 
                     return (
                         <motion.div 
@@ -39,8 +83,18 @@ const AssignmentList = ({ assignments, onDelete, onUpdate }) => {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.9 }}
                             transition={{ duration: 0.4, delay: index * 0.05 }}
-                            className={`glass-panel p-6 rounded-[2rem] hover-glow relative group transition-all duration-500 ${isCompleted ? 'opacity-50 grayscale-[0.5]' : ''}`}
+                            className={`glass-panel p-6 rounded-[2rem] hover-glow relative group transition-all duration-500 ${isCompleted ? 'opacity-50 grayscale-[0.5]' : ''} ${risk ? 'border-rose-500/30' : ''}`}
                         >
+                            {risk && (
+                                <motion.div 
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    className="absolute -top-3 -right-3 px-3 py-1 bg-rose-500 text-white text-[10px] font-black rounded-full shadow-lg z-10 animate-bounce"
+                                >
+                                    AT RISK 🚨
+                                </motion.div>
+                            )}
+
                             <div className="flex justify-between items-start mb-6">
                                 <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border flex items-center gap-1.5 ${
                                     priority.toLowerCase() === 'high' ? 'bg-rose-500/10 text-rose-400 border-rose-500/20 shadow-[0_0_15px_rgba(244,63,94,0.15)] animate-pulse' :
@@ -52,20 +106,58 @@ const AssignmentList = ({ assignments, onDelete, onUpdate }) => {
                                     )}
                                     {priority}
                                 </span>
-                                <button 
-                                    onClick={() => onDelete(item.id)} 
-                                    className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-rose-500/10 hover:text-rose-400 text-text-secondary/20 transition-all opacity-0 group-hover:opacity-100"
-                                    title="Delete Assignment"
-                                >
-                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                        <path d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
+                                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button 
+                                        onClick={() => handleBreakdown(item._id || item.id, item.title)}
+                                        className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-violet-500/10 hover:text-violet-400 text-text-secondary/20 transition-all"
+                                        title="AI Breakdown"
+                                        disabled={isBreakingDown}
+                                    >
+                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                            <path d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+                                        </svg>
+                                    </button>
+                                    <button 
+                                        onClick={() => onDelete(item.id)} 
+                                        className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-rose-500/10 hover:text-rose-400 text-text-secondary/20 transition-all"
+                                        title="Delete Assignment"
+                                    >
+                                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                            <path d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
                             
-                            <h4 className={`text-lg font-bold mb-8 leading-tight transition-all duration-500 ${isCompleted ? 'line-through text-text-secondary/40' : 'text-text-primary'}`}>
+                            <h4 className={`text-lg font-bold mb-4 leading-tight transition-all duration-500 ${isCompleted ? 'line-through text-text-secondary/40' : 'text-text-primary'}`}>
                                 {item.title}
                             </h4>
+
+                            {risk && (
+                                <p className="text-[10px] font-bold text-rose-400 mb-4 bg-rose-500/5 p-2 rounded-lg border border-rose-500/10 italic">
+                                    "{risk.message}"
+                                </p>
+                            )}
+
+                            <AnimatePresence>
+                                {expandedTaskId === (item._id || item.id) && subTasks[item._id || item.id] && (
+                                    <motion.div 
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: 'auto', opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        className="overflow-hidden mb-6"
+                                    >
+                                        <div className="space-y-3 pt-2">
+                                            {subTasks[item._id || item.id].map((step, sIdx) => (
+                                                <div key={sIdx} className="flex items-center gap-3 group/step">
+                                                    <div className="w-4 h-4 rounded border-2 border-glass-border flex-shrink-0 group-hover/step:border-violet-500/50 transition-colors" />
+                                                    <span className="text-[11px] font-medium text-text-primary/70">{step}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                             
                             <div className="flex justify-between items-center mt-auto pt-4 border-t border-glass-border">
                                 <div className="flex items-center gap-2 text-text-secondary/60 font-medium text-xs">
