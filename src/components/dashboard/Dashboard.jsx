@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import AssignmentList from './AssignmentList';
 import SummaryCards from './SummaryCards';
 import CalendarView from './CalendarView';
@@ -6,6 +7,7 @@ import AnalyticsView from './AnalyticsView';
 import ProductivityScore from './ProductivityScore';
 import Filters from '../ui/Filters';
 import StudyPlannerView from './StudyPlannerView';
+import FocusMode from './FocusMode';
 
 import './Dashboard.css';
 
@@ -16,6 +18,8 @@ const Dashboard = ({ assignments, onDelete, onUpdate }) => {
     const [search, setSearch] = useState('');
     const [priorityFilter, setPriorityFilter] = useState('all');
     const [statusFilter, setStatusFilter] = useState('all');
+    const [activeFocusTask, setActiveFocusTask] = useState(null);
+    const [focusSubTasks, setFocusSubTasks] = useState([]);
 
     // Filtering logic
     const filteredAssignments = assignments.filter(item => {
@@ -25,8 +29,30 @@ const Dashboard = ({ assignments, onDelete, onUpdate }) => {
         return matchesSearch && matchesPriority && matchesStatus;
     });
 
+    const handleFocus = (task, subs) => {
+        setActiveFocusTask(task);
+        if (subs) setFocusSubTasks(subs);
+        else setFocusSubTasks([]);
+    };
+
+    const handleFocusComplete = (taskId) => {
+        onUpdate(taskId, { status: 'completed' });
+        setActiveFocusTask(null);
+    };
+
     return (
         <div className="stack-gap w-full">
+            <AnimatePresence>
+                {activeFocusTask && (
+                    <FocusMode 
+                        task={activeFocusTask} 
+                        subTasks={focusSubTasks}
+                        onExit={() => setActiveFocusTask(null)}
+                        onComplete={handleFocusComplete}
+                    />
+                )}
+            </AnimatePresence>
+
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end px-2 mb-8 gap-4">
                 <div>
                     <h2 className="text-text-primary text-2xl font-bold">Dashboard Overview</h2>
@@ -91,6 +117,7 @@ const Dashboard = ({ assignments, onDelete, onUpdate }) => {
                         assignments={filteredAssignments} 
                         onDelete={onDelete} 
                         onUpdate={onUpdate} 
+                        onFocus={handleFocus}
                     />
                 ) : viewMode === 'calendar' ? (
                     <CalendarView 
