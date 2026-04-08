@@ -8,13 +8,14 @@ import ProductivityScore from './ProductivityScore';
 import Filters from '../ui/Filters';
 import StudyPlannerView from './StudyPlannerView';
 import FocusMode from './FocusMode';
+import DeadlineOptimizer from './DeadlineOptimizer';
 
 import './Dashboard.css';
 
 
 
 const Dashboard = ({ assignments, onDelete, onUpdate }) => {
-    const [viewMode, setViewMode] = useState('list'); // 'list', 'calendar' or 'analytics'
+    const [viewMode, setViewMode] = useState('list'); // 'list', 'calendar', 'analytics', 'planner', or 'optimizer'
     const [search, setSearch] = useState('');
     const [priorityFilter, setPriorityFilter] = useState('all');
     const [statusFilter, setStatusFilter] = useState('all');
@@ -84,6 +85,12 @@ const Dashboard = ({ assignments, onDelete, onUpdate }) => {
                     >
                         AI Plan
                     </button>
+                    <button 
+                        className={`view-btn ${viewMode === 'optimizer' ? 'active' : ''}`}
+                        onClick={() => setViewMode('optimizer')}
+                    >
+                        AI Strategy
+                    </button>
                 </div>
             </div>
 
@@ -97,7 +104,7 @@ const Dashboard = ({ assignments, onDelete, onUpdate }) => {
             <div className="px-2 mb-8">
                 <div className="flex flex-col gap-6 mb-8">
                     <h3 className="text-xs font-black text-text-primary/20 uppercase tracking-[0.3em]">
-                        {viewMode === 'list' ? 'Manage Tasks' : viewMode === 'calendar' ? 'Deadline Calendar' : viewMode === 'analytics' ? 'Insight Analytics' : 'Strategic Roadmap'}
+                        {viewMode === 'list' ? 'Manage Tasks' : viewMode === 'calendar' ? 'Deadline Calendar' : viewMode === 'analytics' ? 'Insight Analytics' : viewMode === 'planner' ? 'Strategic Roadmap' : 'Optimizer Strategy'}
                     </h3>
 
                     {viewMode === 'list' && (
@@ -127,8 +134,10 @@ const Dashboard = ({ assignments, onDelete, onUpdate }) => {
                     />
                 ) : viewMode === 'analytics' ? (
                     <AnalyticsView assignments={assignments} />
-                ) : (
+                ) : viewMode === 'planner' ? (
                     <StudyPlannerView />
+                ) : (
+                    <DeadlineOptimizer />
                 )}
             </div>
         </div>

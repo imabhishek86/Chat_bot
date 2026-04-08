@@ -299,6 +299,88 @@ const breakDownTask = async (title) => {
     }
 };
 
+/**
+ * Optimizes deadlines by prioritizing urgent tasks and suggesting delays for low-priority ones.
+ */
+const optimizeDeadlines = async (assignments) => {
+    try {
+        if (!assignments || assignments.length === 0) return { optimized: [], focus: [], delay: [], reasoning: "No pending assignments to optimize." };
+
+        const taskCtx = assignments.map(a => 
+            `- ID: ${a._id || a.id}, Title: ${a.title}, Deadline: ${new Date(a.deadline).toDateString()}, Priority: ${a.priority}, Status: ${a.status}`
+        ).join('\n');
+
+        const prompt = `
+        You are an elite productivity strategist. Analyze these assignments and propose an "Optimized Deadline Plan".
+        
+        Goals:
+        1. Identify "Focus Now" tasks (High priority AND deadline < 3 days).
+        2. Identify "Safe to Delay" tasks (Low/Medium priority AND deadline > 5 days).
+        3. Suggest a specific "Actionable Schedule" that re-orders work to minimize stress.
+        
+        Current Date: ${new Date().toDateString()}
+        Tasks:
+        ${taskCtx}
+        
+        Return STRICTLY a JSON object:
+        {
+          "focus": ["Task Title A", "Task Title B"],
+          "delay": [{"title": "Task Title C", "reason": "Why delay?"}],
+          "optimized_plan": [
+            {"day": "Day 1-2", "activity": "Specific tasks and goals"},
+            {"day": "Day 3-5", "activity": "Future mapping"}
+          ],
+          "overall_strategy": "A 2-sentence summary of the approach."
+        }
+        `;
+
+        const response = await openai.chat.completions.create({
+            model: "gpt-3.5-turbo", // Switched for broader compatibility
+            messages: [{ role: "user", content: prompt }],
+            response_format: { type: "json_object" }
+        });
+
+        return JSON.parse(response.choices[0].message.content);
+    } catch (error) {
+        console.warn('AI Optimization failed, using rule-based fallback:', error.message);
+        
+        // Rule-based Fallback Logic
+        const now = new Date();
+        const focus = assignments
+            .filter(a => {
+                const deadline = new Date(a.deadline);
+                const diffDays = (deadline - now) / (1000 * 60 * 60 * 24);
+                return diffDays < 3 || a.priority === 'High';
+            })
+            .map(a => a.title)
+            .slice(0, 3);
+
+        const delay = assignments
+            .filter(a => {
+                const deadline = new Date(a.deadline);
+                const diffDays = (deadline - now) / (1000 * 60 * 60 * 24);
+                return diffDays > 5 && a.priority === 'Low';
+            })
+            .map(a => ({
+                title: a.title,
+                reason: "Longer lead time and lower relative priority allows for strategic deferral."
+            }));
+
+        const sorted = [...assignments].sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+        const plan = [
+            { day: "Next 48h", activity: `Intense focus on: ${focus.join(', ') || 'nearest deadlines'}` },
+            { day: "Day 3-7", activity: `Progressive work on remaining tasks: ${sorted.slice(focus.length).map(a => a.title).join(', ') || 'future schedule items'}` }
+        ];
+
+        return {
+            focus,
+            delay,
+            optimized_plan: plan,
+            overall_strategy: "Prioritizing near-term deadlines while maintaining steady progress on long-term goals. (AI Fallback Active)"
+        };
+    }
+};
+
 module.exports = {
     extractAssignmentWithAI,
     generateMotivationalMessage,
@@ -306,6 +388,7 @@ module.exports = {
     generateCategorizedSuggestion,
     generateStudyPlan,
     predictRisk,
-    breakDownTask
+    breakDownTask,
+    optimizeDeadlines
 };
 
