@@ -38,6 +38,10 @@ const AssignmentSchema = new mongoose.Schema({
     },
     completedAt: {
         type: Date
+    },
+    estimatedHours: {
+        type: Number,
+        default: 0
     }
 });
 

@@ -21,9 +21,12 @@ const handleChat = async (req, res) => {
                 });
             }
 
+            const estimatedHours = await openaiService.estimateTaskDuration(extracted.title);
+
             const newAssignment = await Assignment.create({
                 title: extracted.title,
-                deadline: extracted.deadline
+                deadline: extracted.deadline,
+                estimatedHours
             });
 
             // Sync with Google Calendar

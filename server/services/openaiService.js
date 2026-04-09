@@ -381,6 +381,50 @@ const optimizeDeadlines = async (assignments) => {
     }
 };
 
+/**
+ * Estimates the duration (in hours) for an academic task based on its title.
+ */
+const estimateTaskDuration = async (title) => {
+    try {
+        if (!title) return 2; // Default fallback
+
+        const prompt = `
+        You are an expert academic advisor. Estimate the total number of hours a student would need to complete this specific task.
+        
+        Task: "${title}"
+        
+        Rules:
+        1. Return ONLY a single number (integer or float).
+        2. Be realistic (e.g., "Read Chapter" -> 1.5, "Term Paper" -> 15).
+        3. If unsure, provide a reasonable average for university-level work.
+        `;
+
+        if (!process.env.OPENAI_API_KEY) throw new Error("No API Key");
+
+        const response = await openai.chat.completions.create({
+            model: "gpt-3.5-turbo",
+            messages: [{ role: "user", content: prompt }],
+            max_tokens: 10
+        });
+
+        const estimation = parseFloat(response.choices[0].message.content.trim());
+        return isNaN(estimation) ? 2 : estimation;
+
+    } catch (error) {
+        console.warn('AI Duration Estimation failed, using rule-based fallback:', error.message);
+        
+        // Simple Rule-based Fallback
+        const lowerTitle = title.toLowerCase();
+        if (lowerTitle.includes('exam') || lowerTitle.includes('test')) return 10;
+        if (lowerTitle.includes('project') || lowerTitle.includes('paper')) return 12;
+        if (lowerTitle.includes('homework') || lowerTitle.includes('assignment')) return 3;
+        if (lowerTitle.includes('read') || lowerTitle.includes('chapter')) return 1.5;
+        if (lowerTitle.includes('study')) return 4;
+        
+        return 2; // Default
+    }
+};
+
 module.exports = {
     extractAssignmentWithAI,
     generateMotivationalMessage,
@@ -389,6 +433,7 @@ module.exports = {
     generateStudyPlan,
     predictRisk,
     breakDownTask,
-    optimizeDeadlines
+    optimizeDeadlines,
+    estimateTaskDuration
 };
 
