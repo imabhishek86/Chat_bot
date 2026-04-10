@@ -109,10 +109,48 @@ const getAISuggestion = async (req, res) => {
     }
 };
 
+const getTodayFocus = async (req, res) => {
+    try {
+        const now = new Date();
+        const futureLimit = new Date();
+        futureLimit.setDate(now.getDate() + 5);
+
+        // Fetch pending assignments with deadlines within next 5 days
+        const pending = await Assignment.find({
+            status: 'pending',
+            deadline: { $lte: futureLimit }
+        });
+
+        // Priority weighting for custom sort
+        const priorityWeight = { 'High': 1, 'Medium': 2, 'Low': 3 };
+
+        // Sort by nearest deadline, then priority
+        const sorted = pending.sort((a, b) => {
+            const deadlineDiff = new Date(a.deadline) - new Date(b.deadline);
+            if (deadlineDiff !== 0) return deadlineDiff;
+            return (priorityWeight[a.priority] || 2) - (priorityWeight[b.priority] || 2);
+        });
+
+        const topTasks = sorted.slice(0, 3);
+        const message = topTasks.length > 0 
+            ? `Start with ${topTasks[0].title} assignment` 
+            : "No urgent focus tasks found. Enjoy your day or plan ahead!";
+
+        res.json({
+            tasks: topTasks,
+            message: message
+        });
+    } catch (error) {
+        console.error('Focus API Error:', error);
+        res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+    }
+};
+
 module.exports = {
     getThisWeekAssignments,
     updateAssignmentStatus,
     deleteAssignment,
-    getAISuggestion
+    getAISuggestion,
+    getTodayFocus
 };
 
