@@ -10,6 +10,7 @@ import StudyPlannerView from './StudyPlannerView';
 import FocusMode from './FocusMode';
 import DeadlineOptimizer from './DeadlineOptimizer';
 import TodayFocus from './TodayFocus';
+import RiskAssessment from './RiskAssessment';
 
 import './Dashboard.css';
 
@@ -96,6 +97,8 @@ const Dashboard = ({ assignments, onDelete, onUpdate }) => {
             </div>
             
             <TodayFocus onFocus={handleFocus} />
+            
+            <RiskAssessment assignments={assignments} />
 
             <SummaryCards assignments={assignments} />
 

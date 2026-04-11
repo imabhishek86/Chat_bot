@@ -129,6 +129,19 @@ h3 { font-size: 1.25rem; font-weight: 600; }
   transform: translateY(-2px);
 }
 
+@keyframes scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(1000%); }
+}
+
+.animate-scan {
+  animation: scan 3s linear infinite;
+  background: linear-gradient(to bottom, transparent, var(--primary-solid), transparent);
+  height: 100px;
+  width: 100%;
+  opacity: 0.1;
+}
+
 /* Custom Scrollbar - Premium Dark */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg-primary); }
