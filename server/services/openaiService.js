@@ -325,7 +325,14 @@ const optimizeDeadlines = async (assignments) => {
         Return STRICTLY a JSON object:
         {
           "focus": ["Task Title A", "Task Title B"],
-          "delay": [{"title": "Task Title C", "reason": "Why delay?"}],
+          "delay": [
+            {
+              "id": "task_id_here", 
+              "title": "Task Title C", 
+              "reason": "Why delay?", 
+              "suggested_date": "YYYY-MM-DD"
+            }
+          ],
           "optimized_plan": [
             {"day": "Day 1-2", "activity": "Specific tasks and goals"},
             {"day": "Day 3-5", "activity": "Future mapping"}
@@ -362,8 +369,10 @@ const optimizeDeadlines = async (assignments) => {
                 return diffDays > 5 && a.priority === 'Low';
             })
             .map(a => ({
+                id: a._id || a.id,
                 title: a.title,
-                reason: "Longer lead time and lower relative priority allows for strategic deferral."
+                reason: "Longer lead time and lower relative priority allows for strategic deferral.",
+                suggested_date: new Date(new Date(a.deadline).getTime() + (7 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0] // Delay by 7 days
             }));
 
         const sorted = [...assignments].sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
@@ -389,14 +398,18 @@ const estimateTaskDuration = async (title) => {
         if (!title) return 2; // Default fallback
 
         const prompt = `
-        You are an expert academic advisor. Estimate the total number of hours a student would need to complete this specific task.
+        You are an elite academic workload analyst. Estimate the total number of hours a dedicated university student would need to complete this specific task from scratch.
         
         Task: "${title}"
         
-        Rules:
-        1. Return ONLY a single number (integer or float).
-        2. Be realistic (e.g., "Read Chapter" -> 1.5, "Term Paper" -> 15).
-        3. If unsure, provide a reasonable average for university-level work.
+        Complexity Rules:
+        - "Read/Review": 1-2 hours per chapter.
+        - "Basic Homework/Lab": 2-4 hours.
+        - "Complex Assignment/Essay (2k words)": 8-12 hours.
+        - "Major Project/Term Paper": 15-25 hours.
+        - "Exam Prep": 10-15 hours.
+        
+        Return ONLY a single number (integer or float). If unsure, provide an average for modern university-level work.
         `;
 
         if (!process.env.OPENAI_API_KEY) throw new Error("No API Key");

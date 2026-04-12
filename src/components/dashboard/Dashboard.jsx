@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import AssignmentList from './AssignmentList';
 import SummaryCards from './SummaryCards';
 import CalendarView from './CalendarView';
@@ -56,10 +56,13 @@ const Dashboard = ({ assignments, onDelete, onUpdate }) => {
                 )}
             </AnimatePresence>
 
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end px-2 mb-8 gap-4">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end px-2 mb-12 gap-6 pb-6 border-b border-glass-border">
                 <div>
-                    <h2 className="text-text-primary text-2xl font-bold">Dashboard Overview</h2>
-                    <p className="text-text-secondary text-sm mt-1">Track your academic progress</p>
+                    <h2 className="text-text-primary text-3xl font-black tracking-tight mb-2">Academic Command Center</h2>
+                    <div className="flex items-center gap-3">
+                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        <p className="text-text-secondary text-xs font-bold uppercase tracking-widest opacity-60">System Synced & Optimizing</p>
+                    </div>
                 </div>
 
                 <div className="view-toggle-container">
@@ -102,9 +105,14 @@ const Dashboard = ({ assignments, onDelete, onUpdate }) => {
 
             <SummaryCards assignments={assignments} />
 
-            <div className="px-2 mb-12">
+            <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="px-2 mb-16"
+            >
                 <ProductivityScore assignments={assignments} />
-            </div>
+            </motion.div>
 
 
             <div className="px-2 mb-8">

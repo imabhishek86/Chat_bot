@@ -26,7 +26,16 @@
   --glass-border-focus: hsla(var(--primary-h), var(--primary-s), var(--primary-l), 0.2);
   
   --shadow-premium: 0 25px 80px rgba(0, 0, 0, 0.15);
+  --shadow-soft: 0 10px 40px rgba(0, 0, 0, 0.05);
+  --shadow-floating: 0 30px 60px -12px rgba(0, 0, 0, 0.25);
   --shadow-neon: 0 0 40px var(--primary-glow);
+  
+  --radius-max: 2.5rem;
+  --radius-md: 1.5rem;
+  --radius-sm: 0.75rem;
+  
+  --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .dark {
@@ -47,6 +56,8 @@
   --glass-border-focus: hsla(var(--primary-h), 90%, var(--primary-l), 0.2);
   
   --shadow-premium: 0 20px 50px rgba(0, 0, 0, 0.5);
+  --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.2);
+  --shadow-floating: 0 40px 80px -20px rgba(0, 0, 0, 0.8);
   --shadow-neon: 0 0 30px var(--primary-glow);
 }
 
@@ -91,16 +102,19 @@ h3 { font-size: 1.25rem; font-weight: 600; }
 /* Enhanced Glassmorphism Utilities */
 .glass-panel {
   background: var(--glass);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--glass-border);
-  box-shadow: var(--shadow-premium);
-  transition: var(--transition-smooth);
+  box-shadow: var(--shadow-soft);
+  transition: var(--transition-bounce);
+  border-radius: var(--radius-max);
 }
 
 .glass-panel:hover {
   background: var(--glass-hover);
-  border-color: hsla(0, 0%, 100%, 0.15);
+  border-color: var(--glass-border-focus);
+  box-shadow: var(--shadow-floating);
+  transform: translateY(-4px);
 }
 
 .glass-pill {

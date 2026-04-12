@@ -48,10 +48,6 @@ const updateAssignmentStatus = async (req, res) => {
 
         await assignment.save();
 
-        if (!assignment) {
-            return res.status(404).json({ status: 'error', message: 'Assignment not found' });
-        }
-
         res.json({
             status: 'success',
             message: 'Status updated successfully',
@@ -115,16 +111,13 @@ const getTodayFocus = async (req, res) => {
         const futureLimit = new Date();
         futureLimit.setDate(now.getDate() + 5);
 
-        // Fetch pending assignments with deadlines within next 5 days
         const pending = await Assignment.find({
             status: 'pending',
             deadline: { $lte: futureLimit }
         });
 
-        // Priority weighting for custom sort
         const priorityWeight = { 'High': 1, 'Medium': 2, 'Low': 3 };
 
-        // Sort by nearest deadline, then priority
         const sorted = pending.sort((a, b) => {
             const deadlineDiff = new Date(a.deadline) - new Date(b.deadline);
             if (deadlineDiff !== 0) return deadlineDiff;
@@ -146,11 +139,45 @@ const getTodayFocus = async (req, res) => {
     }
 };
 
+const bulkEstimateHours = async (req, res) => {
+    try {
+        const assignments = await Assignment.find({ 
+            $or: [
+                { estimatedHours: { $exists: false } },
+                { estimatedHours: 0 },
+                { estimatedHours: null }
+            ],
+            status: 'pending'
+        });
+
+        if (assignments.length === 0) {
+            return res.json({ status: 'success', message: 'All tasks already have estimates.', count: 0 });
+        }
+
+        const openaiService = require('../services/openaiService');
+        const updatePromises = assignments.map(async (a) => {
+            const hours = await openaiService.estimateTaskDuration(a.title);
+            return Assignment.findByIdAndUpdate(a._id, { estimatedHours: hours });
+        });
+
+        await Promise.all(updatePromises);
+
+        res.json({
+            status: 'success',
+            message: `Successfully estimated time for ${assignments.length} tasks.`,
+            count: assignments.length
+        });
+    } catch (error) {
+        console.error('Bulk Estimation Error:', error);
+        res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+    }
+};
+
 module.exports = {
     getThisWeekAssignments,
     updateAssignmentStatus,
     deleteAssignment,
     getAISuggestion,
-    getTodayFocus
+    getTodayFocus,
+    bulkEstimateHours
 };
-

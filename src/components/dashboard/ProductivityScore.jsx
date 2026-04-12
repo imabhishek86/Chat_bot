@@ -21,7 +21,7 @@ const ProductivityScore = ({ assignments }) => {
     const badge = getBadge(score);
     
     return (
-        <div className="glass-panel p-8 rounded-[2.5rem] relative overflow-hidden group">
+        <div className="glass-panel p-10 rounded-[3.5rem] relative overflow-hidden group shadow-xl hover:shadow-2xl">
             {/* Background Accent */}
             <div className={`absolute top-0 right-0 w-32 h-32 blur-[80px] opacity-20 -mr-16 -mt-16 transition-colors duration-700 ${badge.bg}`} />
             

@@ -82,8 +82,8 @@ const AssignmentList = ({ assignments, onDelete, onUpdate }) => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.9 }}
-                            transition={{ duration: 0.4, delay: index * 0.05 }}
-                            className={`glass-panel p-6 rounded-[2rem] hover-glow relative group transition-all duration-500 ${isCompleted ? 'opacity-50 grayscale-[0.5]' : ''} ${risk ? 'border-rose-500/30' : ''}`}
+                            transition={{ duration: 0.5, delay: index * 0.05 }}
+                            className={`glass-panel p-7 rounded-[3rem] relative group transition-all duration-500 ${isCompleted ? 'opacity-40 grayscale-[0.8]' : ''} ${risk ? 'border-rose-500/40 shadow-xl shadow-rose-500/5' : 'hover:shadow-2xl'}`}
                         >
                             {risk && (
                                 <motion.div 
@@ -179,12 +179,12 @@ const AssignmentList = ({ assignments, onDelete, onUpdate }) => {
                                         {new Date(item.deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                                     </div>
                                     {item.estimatedHours > 0 && (
-                                        <div className="flex items-center gap-2 text-primary-solid font-black text-[10px] uppercase tracking-wider opacity-80">
-                                            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="3">
+                                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-violet-500/5 border border-violet-500/10 text-violet-400 font-black text-[10px] uppercase tracking-widest group-hover:bg-violet-500/10 transition-colors">
+                                            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="3" className="opacity-70">
                                                 <circle cx="12" cy="12" r="10" />
-                                                <path d="M12 6v6m0 4h.01" />
+                                                <polyline points="12 6 12 12 16 14" />
                                             </svg>
-                                            {item.estimatedHours}h Estimated
+                                            {item.estimatedHours}h Prediction
                                         </div>
                                     )}
                                 </div>

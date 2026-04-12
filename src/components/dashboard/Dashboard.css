@@ -1,9 +1,11 @@
 .view-toggle-container {
     display: flex;
     background: var(--glass);
-    padding: 4px;
-    border-radius: 12px;
+    padding: 6px;
+    border-radius: var(--radius-md);
     border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-soft);
+    backdrop-filter: blur(12px);
 }
 
 .view-btn {
