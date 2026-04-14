@@ -11,6 +11,8 @@ const plannerRoutes = require('./routes/plannerRoutes');
 const riskRoutes = require('./routes/riskRoutes');
 const breakdownRoutes = require('./routes/breakdownRoutes');
 const optimizerRoutes = require('./routes/optimizerRoutes');
+const reportRoutes = require('./routes/reportRoutes');
+const automationService = require('./services/automationService');
 const reminderService = require('./services/reminderService');
 
 const app = express();
@@ -18,6 +20,7 @@ const app = express();
 
 // Initialize Services
 reminderService.initReminders();
+automationService.initAutomation();
 
 const PORT = process.env.PORT || 5000;
 

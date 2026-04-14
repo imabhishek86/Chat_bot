@@ -11,13 +11,15 @@ import FocusMode from './FocusMode';
 import DeadlineOptimizer from './DeadlineOptimizer';
 import TodayFocus from './TodayFocus';
 import RiskAssessment from './RiskAssessment';
+import MissedDeadlines from './MissedDeadlines';
+import WeeklyReport from './WeeklyReport';
 
 import './Dashboard.css';
 
 
 
 const Dashboard = ({ assignments, onDelete, onUpdate }) => {
-    const [viewMode, setViewMode] = useState('list'); // 'list', 'calendar', 'analytics', 'planner', or 'optimizer'
+    const [viewMode, setViewMode] = useState('list'); // 'list', 'calendar', 'analytics', 'planner', 'optimizer', 'report'
     const [search, setSearch] = useState('');
     const [priorityFilter, setPriorityFilter] = useState('all');
     const [statusFilter, setStatusFilter] = useState('all');
@@ -96,11 +98,19 @@ const Dashboard = ({ assignments, onDelete, onUpdate }) => {
                     >
                         AI Strategy
                     </button>
+                    <button 
+                        className={`view-btn ${viewMode === 'report' ? 'active' : ''}`}
+                        onClick={() => setViewMode('report')}
+                    >
+                        Weekly Report
+                    </button>
                 </div>
             </div>
             
             <TodayFocus onFocus={handleFocus} />
             
+            <MissedDeadlines onUpdate={onUpdate} />
+
             <RiskAssessment assignments={assignments} />
 
             <SummaryCards assignments={assignments} />
@@ -118,7 +128,7 @@ const Dashboard = ({ assignments, onDelete, onUpdate }) => {
             <div className="px-2 mb-8">
                 <div className="flex flex-col gap-6 mb-8">
                     <h3 className="text-xs font-black text-text-primary/20 uppercase tracking-[0.3em]">
-                        {viewMode === 'list' ? 'Manage Tasks' : viewMode === 'calendar' ? 'Deadline Calendar' : viewMode === 'analytics' ? 'Insight Analytics' : viewMode === 'planner' ? 'Strategic Roadmap' : 'Optimizer Strategy'}
+                        {viewMode === 'list' ? 'Manage Tasks' : viewMode === 'calendar' ? 'Deadline Calendar' : viewMode === 'analytics' ? 'Insight Analytics' : viewMode === 'planner' ? 'Strategic Roadmap' : viewMode === 'optimizer' ? 'Optimizer Strategy' : 'Performance Editorial'}
                     </h3>
 
                     {viewMode === 'list' && (
@@ -150,8 +160,10 @@ const Dashboard = ({ assignments, onDelete, onUpdate }) => {
                     <AnalyticsView assignments={assignments} />
                 ) : viewMode === 'planner' ? (
                     <StudyPlannerView />
-                ) : (
+                ) : viewMode === 'optimizer' ? (
                     <DeadlineOptimizer />
+                ) : (
+                    <WeeklyReport onBack={() => setViewMode('list')} />
                 )}
             </div>
         </div>

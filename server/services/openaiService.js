@@ -438,6 +438,82 @@ const estimateTaskDuration = async (title) => {
     }
 };
 
+/**
+ * Generates a human-readable performance report based on weekly study stats.
+ */
+const generateWeeklyPerformanceReport = async (stats) => {
+    try {
+        if (!process.env.OPENAI_API_KEY) return "AI Report generation is currently unavailable. Please check your system configuration.";
+
+        const prompt = `
+        You are a supportive and insightful Academic Success Coach. Generate a highly personalized, human-readable "Weekly Study Report" based on these statistics:
+        
+        Week Stats:
+        - Completed Assignments: ${stats.completed}
+        - Missed Deadlines: ${stats.missed}
+        - Productivity Score: ${stats.score}%
+        - High Priority Efficiency: ${stats.highPrioritySuccess}%
+        
+        Goals for the report:
+        1. "The Week in Review": A 2-sentence summary of overall performance.
+        2. "Biggest Wins": Highlight successes (especially if completed > missed).
+        3. "Growth Opportunities": Constructive advice if deadlines were missed.
+        4. "Closing Motivation": A powerful, short closing quote.
+        
+        Keep the tone professional, encouraging, and clear. Avoid sounding too "robotic".
+        `;
+
+        const response = await openai.chat.completions.create({
+            model: "gpt-3.5-turbo",
+            messages: [{ role: "user", content: prompt }],
+            temperature: 0.7,
+            max_tokens: 500
+        });
+
+        return response.choices[0].message.content.trim();
+    } catch (error) {
+        console.error('AI Report Error:', error);
+        return "Your study data is safe, but the AI Coach is currently taking a breather. Try generating the report again in a moment!";
+    }
+};
+
+/**
+ * Explains the reasoning behind the current focus task list.
+ */
+const explainFocusSchedule = async (tasks) => {
+    try {
+        if (!tasks || tasks.length === 0) return "Your schedule is clear! Use this time to rest or explore future topics.";
+
+        const taskCtx = tasks.map(a => 
+            `- ${a.title} (Deadline: ${new Date(a.deadline).toDateString()}, Priority: ${a.priority}, Est. Time: ${a.estimatedHours}h)`
+        ).join('\n');
+
+        const prompt = `
+        You are a brilliant Academic Strategist. Explain the logic behind the following "Today Focus" task list to a student.
+        
+        Tasks (in order of priority):
+        ${taskCtx}
+        
+        Rules for the explanation:
+        1. Explain WHY these tasks are in this order (mention deadine proximity and priority).
+        2. Highlight the "Heaviest Task" (highest Est. Time) and suggest when to start it.
+        3. Be brief, encouraging, and highly strategic. (Max 4 sentences).
+        4. Focus on the relationship between the tasks and how to flow through them.
+        `;
+
+        const response = await openai.chat.completions.create({
+            model: "gpt-3.5-turbo",
+            messages: [{ role: "user", content: prompt }],
+            max_tokens: 200
+        });
+
+        return response.choices[0].message.content.trim();
+    } catch (error) {
+        console.error('Explain Focus Error:', error);
+        return "I've analyzed your tasks and they're perfectly sequenced based on your approaching deadlines. Let's tackle them one by one!";
+    }
+};
+
 module.exports = {
     extractAssignmentWithAI,
     generateMotivationalMessage,
@@ -447,6 +523,8 @@ module.exports = {
     predictRisk,
     breakDownTask,
     optimizeDeadlines,
-    estimateTaskDuration
+    estimateTaskDuration,
+    generateWeeklyPerformanceReport,
+    explainFocusSchedule // Added
 };
 

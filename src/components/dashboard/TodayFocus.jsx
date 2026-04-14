@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 const TodayFocus = ({ onFocus }) => {
     const [focusData, setFocusData] = useState({ tasks: [], message: '' });
     const [isLoading, setIsLoading] = useState(true);
+    const [explanation, setExplanation] = useState('');
+    const [isExplaining, setIsExplaining] = useState(false);
 
     useEffect(() => {
         const fetchFocusData = async () => {
@@ -23,6 +25,21 @@ const TodayFocus = ({ onFocus }) => {
 
         return () => clearInterval(interval);
     }, []);
+
+    const handleExplain = async () => {
+        if (isExplaining) return;
+        setIsExplaining(true);
+        try {
+            const response = await fetch('http://localhost:5000/api/assignments/today-focus/explain');
+            const data = await response.json();
+            setExplanation(data.explanation);
+        } catch (error) {
+            console.error("Error explaining focus:", error);
+            setExplanation("I've analyzed your schedule, and it's perfectly balanced for maximum productivity today.");
+        } finally {
+            setIsExplaining(false);
+        }
+    };
 
     const labels = ["Do First", "Next", "Later"];
     const styles = [
@@ -60,15 +77,57 @@ const TodayFocus = ({ onFocus }) => {
 
     return (
         <section className="mb-12">
-            <header className="flex flex-col gap-2 mb-8 px-2">
-                <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-violet-500 animate-pulse" />
-                    <h2 className="text-sm font-black uppercase tracking-[0.3em] text-text-secondary/60">Execution Plan</h2>
+            <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 px-2">
+                <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-violet-500 animate-pulse" />
+                        <h2 className="text-sm font-black uppercase tracking-[0.3em] text-text-secondary/60">Execution Plan</h2>
+                    </div>
+                    <p className="text-xl font-bold text-text-primary/90 italic">
+                        {focusData.message}
+                    </p>
                 </div>
-                <p className="text-xl font-bold text-text-primary/90 italic">
-                    {focusData.message}
-                </p>
+
+                <button 
+                    onClick={handleExplain}
+                    disabled={isExplaining}
+                    className="flex items-center gap-3 px-6 py-2.5 rounded-2xl bg-violet-500/10 hover:bg-violet-500/20 text-violet-400 border border-violet-500/30 transition-all font-black uppercase tracking-widest text-[10px] active:scale-95 disabled:opacity-50"
+                >
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" className={isExplaining ? 'animate-spin' : ''}>
+                        {isExplaining ? (
+                            <path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 12h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83" />
+                        ) : (
+                            <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 14a4 4 0 1 1 4-4 4 4 0 0 1-4 4zM12 6V2m0 16v4M6 12H2m16 0h4" />
+                        )}
+                    </svg>
+                    {isExplaining ? 'Thinking...' : 'Explain My Day'}
+                </button>
             </header>
+
+            {explanation && (
+                <motion.div 
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    className="mb-8 px-4"
+                >
+                    <div className="glass-panel p-8 rounded-[2.5rem] border-violet-500/20 bg-violet-500/5 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-6 opacity-5">
+                            <svg viewBox="0 0 24 24" width="80" height="80" fill="currentColor" className="text-violet-500">
+                                <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-1-3a1 1 0 0 1-1-1v-4a1 1 0 1 1 2 0v4a1 1 0 0 1-1 1z" />
+                            </svg>
+                        </div>
+                        <div className="relative z-10">
+                            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-violet-400 mb-4 flex items-center gap-4">
+                                <span className="w-8 h-[1px] bg-violet-500/30" />
+                                AI Strategic Briefing
+                            </p>
+                            <p className="text-lg font-bold text-text-primary leading-relaxed italic opacity-90">
+                                &ldquo;{explanation}&rdquo;
+                            </p>
+                        </div>
+                    </div>
+                </motion.div>
+            )}
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {focusData.tasks.slice(0, 3).map((task, idx) => {

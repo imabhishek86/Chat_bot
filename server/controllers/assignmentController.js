@@ -173,11 +173,77 @@ const bulkEstimateHours = async (req, res) => {
     }
 };
 
+const getMissedAssignments = async (req, res) => {
+    try {
+        const now = new Date();
+        const missed = await Assignment.find({
+            status: 'pending',
+            deadline: { $lt: now }
+        }).sort({ deadline: 1 });
+
+        res.json({
+            count: missed.length,
+            assignments: missed
+        });
+    } catch (error) {
+        console.error('Missed Assignments Error:', error);
+        res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+    }
+};
+
+const triggerPrioritySync = async (req, res) => {
+    try {
+        const automationService = require('../services/automationService');
+        const result = await automationService.syncPriorities();
+        
+        if (result.success) {
+            res.json({ status: 'success', message: `Successfully synced priorities for ${result.count} tasks.` });
+        } else {
+            throw new Error(result.error);
+        }
+    } catch (error) {
+        console.error('Priority Sync API Error:', error);
+        res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+    }
+};
+
+const explainTodayFocus = async (req, res) => {
+    try {
+        const now = new Date();
+        const futureLimit = new Date();
+        futureLimit.setDate(now.getDate() + 5);
+
+        const pending = await Assignment.find({
+            status: 'pending',
+            deadline: { $lte: futureLimit }
+        });
+
+        const priorityWeight = { 'High': 1, 'Medium': 2, 'Low': 3 };
+        const sorted = pending.sort((a, b) => {
+            const deadlineDiff = new Date(a.deadline) - new Date(b.deadline);
+            if (deadlineDiff !== 0) return deadlineDiff;
+            return (priorityWeight[a.priority] || 2) - (priorityWeight[b.priority] || 2);
+        });
+
+        const topTasks = sorted.slice(0, 3);
+        const openaiService = require('../services/openaiService');
+        const explanation = await openaiService.explainFocusSchedule(topTasks);
+
+        res.json({ explanation });
+    } catch (error) {
+        console.error('Explain Focus API Error:', error);
+        res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+    }
+};
+
 module.exports = {
     getThisWeekAssignments,
     updateAssignmentStatus,
     deleteAssignment,
     getAISuggestion,
     getTodayFocus,
-    bulkEstimateHours
+    bulkEstimateHours,
+    getMissedAssignments,
+    triggerPrioritySync,
+    explainTodayFocus // Added
 };
