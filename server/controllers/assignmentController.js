@@ -236,6 +236,27 @@ const explainTodayFocus = async (req, res) => {
     }
 };
 
+const cleanupAssignments = async (req, res) => {
+    try {
+        const automationService = require('../services/automationService');
+        const result = await automationService.runFullMaintenance();
+        
+        if (result.success) {
+            const summary = `${result.cleaned} tasks cleaned, ${result.missed} marked missed`;
+            res.json({ 
+                status: 'success', 
+                summary,
+                details: result 
+            });
+        } else {
+            throw new Error(result.error);
+        }
+    } catch (error) {
+        console.error('Cleanup API Error:', error);
+        res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+    }
+};
+
 module.exports = {
     getThisWeekAssignments,
     updateAssignmentStatus,
@@ -245,5 +266,6 @@ module.exports = {
     bulkEstimateHours,
     getMissedAssignments,
     triggerPrioritySync,
-    explainTodayFocus // Added
+    explainTodayFocus,
+    cleanupAssignments // Added
 };

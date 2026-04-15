@@ -25,6 +25,8 @@ const Dashboard = ({ assignments, onDelete, onUpdate }) => {
     const [statusFilter, setStatusFilter] = useState('all');
     const [activeFocusTask, setActiveFocusTask] = useState(null);
     const [focusSubTasks, setFocusSubTasks] = useState([]);
+    const [maintenanceSummary, setMaintenanceSummary] = useState(null);
+    const [isCleaning, setIsCleaning] = useState(false);
 
     // Filtering logic
     const filteredAssignments = assignments.filter(item => {
@@ -43,6 +45,23 @@ const Dashboard = ({ assignments, onDelete, onUpdate }) => {
     const handleFocusComplete = (taskId) => {
         onUpdate(taskId, { status: 'completed' });
         setActiveFocusTask(null);
+    };
+
+    const handleMaintenance = async () => {
+        setIsCleaning(true);
+        try {
+            const res = await fetch('http://localhost:5000/api/assignments/cleanup', { method: 'POST' });
+            const data = await res.json();
+            if (data.status === 'success') {
+                setMaintenanceSummary(data.summary);
+                onUpdate(); // Trigger refresh
+                setTimeout(() => setMaintenanceSummary(null), 5000);
+            }
+        } catch (err) {
+            console.error('Maintenance failed:', err);
+        } finally {
+            setIsCleaning(false);
+        }
     };
 
     return (
@@ -67,7 +86,32 @@ const Dashboard = ({ assignments, onDelete, onUpdate }) => {
                     </div>
                 </div>
 
-                <div className="view-toggle-container">
+                <div className="flex items-center gap-4">
+                    <AnimatePresence>
+                        {maintenanceSummary && (
+                            <motion.div 
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 10 }}
+                                className="px-4 py-2 rounded-xl bg-violet-500/10 text-violet-400 border border-violet-500/20 text-[10px] font-black uppercase tracking-widest"
+                            >
+                                ✨ {maintenanceSummary}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    <button 
+                        onClick={handleMaintenance}
+                        disabled={isCleaning}
+                        className={`p-3 rounded-2xl bg-white/5 border border-glass-border text-text-secondary hover:text-text-primary hover:bg-white/10 transition-all active:scale-95 disabled:opacity-50 ${isCleaning ? 'animate-pulse' : ''}`}
+                        title="Run System Maintenance"
+                    >
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 12h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83" />
+                        </svg>
+                    </button>
+                    
+                    <div className="view-toggle-container">
                     <button 
                         className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
                         onClick={() => setViewMode('list')}
@@ -104,10 +148,11 @@ const Dashboard = ({ assignments, onDelete, onUpdate }) => {
                     >
                         Weekly Report
                     </button>
-                </div>
             </div>
-            
-            <TodayFocus onFocus={handleFocus} />
+        </div>
+    </div>
+    
+    <TodayFocus onFocus={handleFocus} />
             
             <MissedDeadlines onUpdate={onUpdate} />
 

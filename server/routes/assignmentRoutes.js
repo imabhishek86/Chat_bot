@@ -9,6 +9,7 @@ router.get('/today-focus/explain', assignmentController.explainTodayFocus);
 router.get('/missed', assignmentController.getMissedAssignments);
 router.post('/estimate-all', assignmentController.bulkEstimateHours);
 router.post('/sync-priorities', assignmentController.triggerPrioritySync);
+router.post('/cleanup', assignmentController.cleanupAssignments);
 router.patch('/:id/status', assignmentController.updateAssignmentStatus);
 router.delete('/:id', assignmentController.deleteAssignment);
 

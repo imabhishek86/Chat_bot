@@ -51,7 +51,46 @@ const initAutomation = () => {
     console.log('✅ Automation Service Initialized (Daily Priority Sync)');
 };
 
+/**
+ * Perfroms a deep system-wide maintenance cycle.
+ */
+const runFullMaintenance = async () => {
+    try {
+        const now = new Date();
+        const sevenDaysAgo = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
+
+        // 1. Purge: Delete completed tasks older than 7 days
+        const purgeResult = await Assignment.deleteMany({
+            status: 'completed',
+            completedAt: { $lt: sevenDaysAgo }
+        });
+
+        // 2. Audit: Mark pending tasks with past deadlines as 'missed'
+        const auditResult = await Assignment.updateMany(
+            {
+                status: 'pending',
+                deadline: { $lt: now }
+            },
+            { status: 'missed' }
+        );
+
+        // 3. Sync: Trigger priority re-calculation
+        const syncResult = await syncPriorities();
+
+        return {
+            success: true,
+            cleaned: purgeResult.deletedCount,
+            missed: auditResult.modifiedCount,
+            synced: syncResult.count
+        };
+    } catch (err) {
+        console.error('[Maintenance Error]:', err);
+        return { success: false, error: err.message };
+    }
+};
+
 module.exports = {
     syncPriorities,
-    initAutomation
+    initAutomation,
+    runFullMaintenance
 };
