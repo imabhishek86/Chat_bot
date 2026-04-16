@@ -39,60 +39,60 @@ const SummaryCards = ({ assignments }) => {
     const stats = {
         total: assignments.length,
         completed: assignments.filter(a => a.status === 'completed').length,
-        pending: assignments.filter(a => a.status !== 'completed').length,
-        high: assignments.filter(a => a.priority === 'High' && a.status !== 'completed').length,
-        totalHours: assignments.filter(a => a.status !== 'completed').reduce((sum, a) => sum + (a.estimatedHours || 0), 0)
+        pending: assignments.filter(a => a.status === 'pending').length,
+        missed: assignments.filter(a => a.status === 'missed').length,
+        high: assignments.filter(a => a.priority === 'High' && a.status === 'pending').length,
+        totalHours: assignments.filter(a => a.status === 'pending').reduce((sum, a) => sum + (a.estimatedHours || 0), 0)
     };
 
     const config = [
         {
-            title: "Total Tasks",
+            title: "Total Scope",
             value: stats.total,
             useTheme: true,
-            colorClass: {}, // Handled by useTheme
+            colorClass: {},
             icon: (
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
                 </svg>
             )
         },
         {
-            title: "Completed Tasks",
+            title: "Conquered",
             value: stats.completed,
             colorClass: { bg: 'bg-emerald-500/10', text: 'text-emerald-400', border: 'border-emerald-500/20', line: 'bg-emerald-500', shadow: 'hover:shadow-emerald-500/10' },
             icon: (
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <path d="M20 6L9 17l-5-5" />
                 </svg>
             )
         },
         {
-            title: "Pending Tasks",
-            value: stats.pending,
-            colorClass: { bg: 'bg-amber-500/10', text: 'text-amber-400', border: 'border-amber-500/20', line: 'bg-amber-500', shadow: 'hover:shadow-amber-500/10' },
+            title: "Targets Missed",
+            value: stats.missed,
+            colorClass: { bg: 'bg-rose-500/10', text: 'text-rose-400', border: 'border-rose-500/20', line: 'bg-rose-500', shadow: 'hover:shadow-rose-500/10' },
             icon: (
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <circle cx="12" cy="12" r="10" />
-                    <path d="M12 8v4l3 3" />
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="3">
+                    <path d="M18 6L6 18M6 6l12 12" />
                 </svg>
             )
         },
         {
-            title: "Urgent (High)",
+            title: "Active Risk (High)",
             value: stats.high,
-            colorClass: { bg: 'bg-rose-500/10', text: 'text-rose-400', border: 'border-rose-500/20', line: 'bg-rose-500', shadow: 'hover:shadow-rose-500/10' },
+            colorClass: { bg: 'bg-amber-500/10', text: 'text-amber-400', border: 'border-amber-500/20', line: 'bg-amber-500', shadow: 'hover:shadow-amber-500/10' },
             icon: (
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
             )
         },
         {
-            title: "Total Study Load",
+            title: "Momentum (Load)",
             value: `${Math.round(stats.totalHours)}h`,
             colorClass: { bg: 'bg-violet-500/10', text: 'text-violet-400', border: 'border-violet-500/20', line: 'bg-violet-500', shadow: 'hover:shadow-violet-500/10' },
             icon: (
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <circle cx="12" cy="12" r="10" />
                     <polyline points="12 6 12 12 16 14" />
                 </svg>
@@ -108,5 +108,4 @@ const SummaryCards = ({ assignments }) => {
         </div>
     );
 };
-
 export default SummaryCards;

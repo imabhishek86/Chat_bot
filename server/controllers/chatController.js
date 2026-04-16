@@ -5,6 +5,15 @@ const googleCalendarService = require('../services/googleCalendarService');
 
 const handleChat = async (req, res) => {
     try {
+        // Offline check
+        const mongoose = require('mongoose');
+        if (mongoose.connection.readyState !== 1) {
+            return res.json({ 
+                reply: "⚠️ I'm currently in Offline Mode because the database is disconnected. I can't save tasks right now, but feel free to ask for study tips!",
+                offline: true 
+            });
+        }
+
         const { message } = req.body;
         if (!message) {
             return res.status(400).json({ status: 'error', message: 'Message is required' });

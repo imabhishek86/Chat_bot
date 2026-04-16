@@ -3,17 +3,22 @@ const googleCalendarService = require('../services/googleCalendarService');
 
 const getThisWeekAssignments = async (req, res) => {
     try {
+        // Offline check
+        const mongoose = require('mongoose');
+        if (mongoose.connection.readyState !== 1) {
+            return res.json({ count: 0, assignments: [], offline: true });
+        }
+
         const now = new Date();
         now.setHours(0, 0, 0, 0); // Start of today
         
         const nextWeek = new Date();
         nextWeek.setDate(now.getDate() + 7);
-        nextWeek.setHours(23, 59, 59, 999); // End of 7 days from now
-
+        nextWeek.setHours(23, 59, 59, 999); 
 
         const assignments = await Assignment.find({
             deadline: { $gte: now, $lte: nextWeek }
-        }).sort({ deadline: 1 }); // Sort by nearest deadline
+        }).sort({ deadline: 1 });
 
         res.json({
             count: assignments.length,
@@ -80,6 +85,12 @@ const deleteAssignment = async (req, res) => {
 
 const getAISuggestion = async (req, res) => {
     try {
+        // Offline check
+        const mongoose = require('mongoose');
+        if (mongoose.connection.readyState !== 1) {
+            return res.json({ message: "Connect to your database to unlock AI tactical suggestions.", type: 'normal', offline: true });
+        }
+
         const pending = await Assignment.find({ status: 'pending' }).sort({ deadline: 1 });
         
         let type = 'normal';
@@ -107,6 +118,12 @@ const getAISuggestion = async (req, res) => {
 
 const getTodayFocus = async (req, res) => {
     try {
+        // Offline check
+        const mongoose = require('mongoose');
+        if (mongoose.connection.readyState !== 1) {
+            return res.json({ tasks: [], message: "Database offline.", offline: true });
+        }
+
         const now = new Date();
         const futureLimit = new Date();
         futureLimit.setDate(now.getDate() + 5);
@@ -175,6 +192,12 @@ const bulkEstimateHours = async (req, res) => {
 
 const getMissedAssignments = async (req, res) => {
     try {
+        // Offline check
+        const mongoose = require('mongoose');
+        if (mongoose.connection.readyState !== 1) {
+            return res.json({ count: 0, assignments: [], offline: true });
+        }
+
         const now = new Date();
         const missed = await Assignment.find({
             status: 'pending',
@@ -209,6 +232,12 @@ const triggerPrioritySync = async (req, res) => {
 
 const explainTodayFocus = async (req, res) => {
     try {
+        // Offline check
+        const mongoose = require('mongoose');
+        if (mongoose.connection.readyState !== 1) {
+            return res.json({ explanation: "Your database is currently offline. Start MongoDB to see your focus briefing!", offline: true });
+        }
+
         const now = new Date();
         const futureLimit = new Date();
         futureLimit.setDate(now.getDate() + 5);

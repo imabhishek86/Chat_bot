@@ -2,6 +2,12 @@ const Assignment = require('../models/Assignment');
 
 const getStreak = async (req, res) => {
     try {
+        // Offline check
+        const mongoose = require('mongoose');
+        if (mongoose.connection.readyState !== 1) {
+            return res.json({ streak: 0, offline: true });
+        }
+
         const completed = await Assignment.find({ 
             status: 'completed',
             completedAt: { $exists: true }

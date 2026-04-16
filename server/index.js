@@ -33,7 +33,7 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/studyflow')
     .then(() => console.log('✅ MongoDB Connected'))
     .catch(err => {
         console.error('❌ MongoDB Connection Error:', err.message);
-        process.exit(1);
+        console.warn('⚠️ WARNING: Server is running in UNCONNECTED mode. Database features will be unavailable.');
     });
 
 // API Routes

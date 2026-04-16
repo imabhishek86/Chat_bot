@@ -73,6 +73,7 @@ const AssignmentList = ({ assignments, onDelete, onUpdate }) => {
                 {sortedAssignments.map((item, index) => {
                     const priority = item.priority || 'Low';
                     const isCompleted = item.status === 'completed';
+                    const isMissed = item.status === 'missed';
                     const risk = risks[item._id || item.id];
 
                     return (
@@ -83,7 +84,7 @@ const AssignmentList = ({ assignments, onDelete, onUpdate }) => {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.9 }}
                             transition={{ duration: 0.5, delay: index * 0.05 }}
-                            className={`glass-panel p-7 rounded-[3rem] relative group transition-all duration-500 ${isCompleted ? 'opacity-40 grayscale-[0.8]' : ''} ${risk ? 'border-rose-500/40 shadow-xl shadow-rose-500/5' : 'hover:shadow-2xl'}`}
+                            className={`glass-panel p-7 rounded-[3rem] relative group transition-all duration-500 ${isCompleted ? 'opacity-40 grayscale-[0.8]' : ''} ${isMissed ? 'border-rose-500/10 bg-rose-500/[0.02] opacity-70 shadow-none' : ''} ${risk ? 'border-rose-500/40 shadow-xl shadow-rose-500/5' : 'hover:shadow-2xl'}`}
                         >
                             {risk && (
                                 <motion.div 
@@ -139,8 +140,11 @@ const AssignmentList = ({ assignments, onDelete, onUpdate }) => {
                                 </div>
                             </div>
                             
-                            <h4 className={`text-lg font-bold mb-4 leading-tight transition-all duration-500 ${isCompleted ? 'line-through text-text-secondary/40' : 'text-text-primary'}`}>
+                            <h4 className={`text-lg font-bold mb-4 leading-tight transition-all duration-500 ${isCompleted ? 'line-through text-text-secondary/40' : isMissed ? 'text-rose-500/60' : 'text-text-primary'}`}>
                                 {item.title}
+                                {isMissed && (
+                                    <span className="block text-[10px] font-black uppercase tracking-[0.2em] text-rose-500 mt-2 italic">⚠️ Target Missed</span>
+                                )}
                             </h4>
 
                             {risk && (
@@ -196,7 +200,7 @@ const AssignmentList = ({ assignments, onDelete, onUpdate }) => {
                                     }`}
                                     onClick={() => onUpdate(item.id, { status: isCompleted ? 'pending' : 'completed' })}
                                 >
-                                    {isCompleted ? 'Done' : 'Mark Done'}
+                                    {isCompleted ? 'Done' : isMissed ? 'Retry' : 'Mark Done'}
                                 </button>
                             </div>
                         </motion.div>
