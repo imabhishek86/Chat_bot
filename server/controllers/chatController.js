@@ -38,8 +38,12 @@ const handleChat = async (req, res) => {
                 estimatedHours
             });
 
-            // Sync with Google Calendar
-            await googleCalendarService.addEvent(newAssignment);
+            // Sync with Google Calendar and save the event ID
+            const eventId = await googleCalendarService.addEvent(newAssignment);
+            if (eventId) {
+                newAssignment.googleEventId = eventId;
+                await newAssignment.save();
+            }
 
             return res.status(201).json({
                 message: "Assignment added successfully",

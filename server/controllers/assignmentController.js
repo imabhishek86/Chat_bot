@@ -53,6 +53,10 @@ const updateAssignmentStatus = async (req, res) => {
 
         await assignment.save();
 
+        if (assignment.googleEventId) {
+            await googleCalendarService.updateEvent(assignment);
+        }
+
         res.json({
             status: 'success',
             message: 'Status updated successfully',
@@ -71,6 +75,10 @@ const deleteAssignment = async (req, res) => {
 
         if (!assignment) {
             return res.status(404).json({ status: 'error', message: 'Assignment not found' });
+        }
+
+        if (assignment.googleEventId) {
+            await googleCalendarService.deleteEvent(assignment.googleEventId);
         }
 
         res.json({
@@ -286,6 +294,39 @@ const cleanupAssignments = async (req, res) => {
     }
 };
 
+const updateEstimate = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { estimatedHours } = req.body;
+
+        if (estimatedHours === undefined || isNaN(estimatedHours)) {
+            return res.status(400).json({ status: 'error', message: 'Valid estimatedHours is required' });
+        }
+
+        const assignment = await Assignment.findById(id);
+        if (!assignment) {
+            return res.status(404).json({ status: 'error', message: 'Assignment not found' });
+        }
+
+        assignment.estimatedHours = Number(estimatedHours);
+        await assignment.save();
+
+        // Sync with Google Calendar
+        if (assignment.googleEventId) {
+            await googleCalendarService.updateEvent(assignment);
+        }
+
+        res.json({
+            status: 'success',
+            message: 'Estimate updated successfully',
+            assignment
+        });
+    } catch (error) {
+        console.error('Update Estimate Error:', error);
+        res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+    }
+};
+
 module.exports = {
     getThisWeekAssignments,
     updateAssignmentStatus,
@@ -296,5 +337,6 @@ module.exports = {
     getMissedAssignments,
     triggerPrioritySync,
     explainTodayFocus,
-    cleanupAssignments // Added
+    cleanupAssignments,
+    updateEstimate
 };

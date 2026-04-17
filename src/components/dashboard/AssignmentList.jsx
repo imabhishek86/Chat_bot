@@ -6,6 +6,8 @@ const AssignmentList = ({ assignments, onDelete, onUpdate }) => {
     const [expandedTaskId, setExpandedTaskId] = useState(null);
     const [subTasks, setSubTasks] = useState({});
     const [isBreakingDown, setIsBreakingDown] = useState(false);
+    const [editingTaskId, setEditingTaskId] = useState(null);
+    const [editValue, setEditValue] = useState('');
 
     useEffect(() => {
         const fetchRisks = async () => {
@@ -42,6 +44,22 @@ const AssignmentList = ({ assignments, onDelete, onUpdate }) => {
             console.error('Breakdown Error:', e);
         } finally {
             setIsBreakingDown(false);
+        }
+    };
+
+    const handleUpdateEstimate = async (taskId) => {
+        try {
+            const res = await fetch(`http://localhost:5000/api/assignments/${taskId}/estimate`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ estimatedHours: parseFloat(editValue) })
+            });
+            if (res.ok) {
+                onUpdate(taskId, { estimatedHours: parseFloat(editValue) });
+                setEditingTaskId(null);
+            }
+        } catch (e) {
+            console.error('Update Estimate Error:', e);
         }
     };
 
@@ -183,12 +201,32 @@ const AssignmentList = ({ assignments, onDelete, onUpdate }) => {
                                         {new Date(item.deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                                     </div>
                                     {item.estimatedHours > 0 && (
-                                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-violet-500/5 border border-violet-500/10 text-violet-400 font-black text-[10px] uppercase tracking-widest group-hover:bg-violet-500/10 transition-colors">
-                                            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="3" className="opacity-70">
-                                                <circle cx="12" cy="12" r="10" />
-                                                <polyline points="12 6 12 12 16 14" />
-                                            </svg>
-                                            {item.estimatedHours}h Prediction
+                                        <div 
+                                            onClick={() => {
+                                                setEditingTaskId(item._id || item.id);
+                                                setEditValue(item.estimatedHours.toString());
+                                            }}
+                                            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-violet-500/5 border border-violet-500/10 text-violet-400 font-black text-[10px] uppercase tracking-widest group-hover:bg-violet-500/10 transition-colors cursor-pointer hover:border-violet-500/30"
+                                        >
+                                            {editingTaskId === (item._id || item.id) ? (
+                                                <input 
+                                                    autoFocus
+                                                    type="number"
+                                                    value={editValue}
+                                                    onChange={(e) => setEditValue(e.target.value)}
+                                                    onBlur={() => handleUpdateEstimate(item._id || item.id)}
+                                                    onKeyDown={(e) => e.key === 'Enter' && handleUpdateEstimate(item._id || item.id)}
+                                                    className="w-12 bg-transparent border-none outline-none text-violet-400 font-black"
+                                                />
+                                            ) : (
+                                              <>
+                                                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="3" className="opacity-70">
+                                                    <circle cx="12" cy="12" r="10" />
+                                                    <polyline points="12 6 12 12 16 14" />
+                                                </svg>
+                                                {item.estimatedHours}h Prediction
+                                              </>
+                                            )}
                                         </div>
                                     )}
                                 </div>

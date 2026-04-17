@@ -45,7 +45,7 @@ const addEvent = async (assignment) => {
         
         const event = {
             summary: `StudyFlow: ${assignment.title}`,
-            description: assignment.description || 'Deadline tracked by StudyFlow',
+            description: `[Academic Load: ${assignment.estimatedHours || 0}h]\nPriority: ${assignment.priority}`,
             start: {
                 date: new Date(assignment.deadline).toISOString().split('T')[0],
             },
@@ -59,15 +59,64 @@ const addEvent = async (assignment) => {
             resource: event,
         });
 
-        return response.data;
+        return response.data.id; // Return the ID for persistence
     } catch (error) {
         console.error('Google Calendar Add Event Error:', error.message);
         return null;
     }
 };
 
+const updateEvent = async (assignment) => {
+    try {
+        if (!loadTokens() || !assignment.googleEventId) return null;
+
+        const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
+        
+        const event = {
+            summary: `${assignment.status === 'completed' ? '[DONE] ' : ''}StudyFlow: ${assignment.title}`,
+            description: `[Academic Load: ${assignment.estimatedHours || 0}h]\nPriority: ${assignment.priority}\nStatus: ${assignment.status}`,
+            start: {
+                date: new Date(assignment.deadline).toISOString().split('T')[0],
+            },
+            end: {
+                date: new Date(assignment.deadline).toISOString().split('T')[0],
+            },
+        };
+
+        const response = await calendar.events.patch({
+            calendarId: 'primary',
+            eventId: assignment.googleEventId,
+            resource: event,
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error('Google Calendar Update Event Error:', error.message);
+        return null;
+    }
+};
+
+const deleteEvent = async (googleEventId) => {
+    try {
+        if (!loadTokens() || !googleEventId) return null;
+
+        const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
+        await calendar.events.delete({
+            calendarId: 'primary',
+            eventId: googleEventId,
+        });
+
+        return true;
+    } catch (error) {
+        console.error('Google Calendar Delete Event Error:', error.message);
+        return false;
+    }
+};
+
 module.exports = {
     getAuthUrl,
     saveTokens,
-    addEvent
+    addEvent,
+    updateEvent,
+    deleteEvent
 };

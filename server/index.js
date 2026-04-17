@@ -45,6 +45,7 @@ app.use('/api/planner', plannerRoutes);
 app.use('/api/risk', riskRoutes);
 app.use('/api/breakdown', breakdownRoutes);
 app.use('/api/optimizer', optimizerRoutes);
+app.use('/api/reports', reportRoutes);
 
 app.get('/api/suggestions', assignmentController.getAISuggestion);
 

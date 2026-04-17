@@ -42,6 +42,10 @@ const AssignmentSchema = new mongoose.Schema({
     estimatedHours: {
         type: Number,
         default: 0
+    },
+    googleEventId: {
+        type: String,
+        required: false
     }
 });
 

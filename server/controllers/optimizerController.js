@@ -31,9 +31,14 @@ exports.applyOptimization = async (req, res) => {
             return res.status(400).json({ error: 'Invalid shifts data provided' });
         }
 
-        const updatePromises = shifts.map(shift => 
-            Assignment.findByIdAndUpdate(shift.id, { deadline: shift.newDate })
-        );
+        const googleCalendarService = require('../services/googleCalendarService');
+        const updatePromises = shifts.map(async (shift) => {
+            const assignment = await Assignment.findByIdAndUpdate(shift.id, { deadline: shift.newDate }, { new: true });
+            if (assignment && assignment.googleEventId) {
+                await googleCalendarService.updateEvent(assignment);
+            }
+            return assignment;
+        });
 
         await Promise.all(updatePromises);
         
