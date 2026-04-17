@@ -1,6 +1,25 @@
 const Assignment = require('../models/Assignment');
 const googleCalendarService = require('../services/googleCalendarService');
 
+const getAssignments = async (req, res) => {
+    try {
+        // Offline check
+        const mongoose = require('mongoose');
+        if (mongoose.connection.readyState !== 1) {
+            return res.json({ count: 0, assignments: [], offline: true });
+        }
+
+        const assignments = await Assignment.find({}).sort({ deadline: 1 });
+        res.json({
+            count: assignments.length,
+            assignments
+        });
+    } catch (error) {
+        console.error('Get All Assignments Error:', error);
+        res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+    }
+};
+
 const getThisWeekAssignments = async (req, res) => {
     try {
         // Offline check
@@ -328,6 +347,7 @@ const updateEstimate = async (req, res) => {
 };
 
 module.exports = {
+    getAssignments,
     getThisWeekAssignments,
     updateAssignmentStatus,
     deleteAssignment,

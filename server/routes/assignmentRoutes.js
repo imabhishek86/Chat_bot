@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const assignmentController = require('../controllers/assignmentController');
 
+router.get('/', assignmentController.getAssignments);
 router.get('/this-week', assignmentController.getThisWeekAssignments);
 router.get('/suggestion', assignmentController.getAISuggestion);
 router.get('/today-focus', assignmentController.getTodayFocus);

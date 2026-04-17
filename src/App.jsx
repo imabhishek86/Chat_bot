@@ -45,19 +45,36 @@ function App() {
   };
 
   useEffect(() => {
-    // Simulate initial data load from localStorage
-    const timer = setTimeout(() => {
+    // 1. Instant Load from LocalStorage
+    try {
+      const saved = localStorage.getItem('assignments');
+      if (saved) {
+        setAssignments(JSON.parse(saved));
+      }
+    } catch (err) {
+      console.error("Local Load Error:", err);
+    }
+
+    // 2. Background Sync from Server
+    const syncData = async () => {
       try {
-        const saved = localStorage.getItem('assignments');
-        if (saved) setAssignments(JSON.parse(saved));
-        setIsLoading(false);
+        const res = await fetch('http://localhost:5000/api/assignments');
+        if (res.ok) {
+          const data = await res.json();
+          // Merge or overwrite with server truth
+          if (data.assignments) {
+            setAssignments(data.assignments);
+            localStorage.setItem('assignments', JSON.stringify(data.assignments));
+          }
+        }
       } catch (err) {
-        console.error("Failed to load assignments:", err);
-        setError("Could not load your assignments from local storage.");
+        console.warn("Backend unavailable. Running in persistent offline mode.");
+      } finally {
         setIsLoading(false);
       }
-    }, 800);
-    return () => clearTimeout(timer);
+    };
+
+    syncData();
   }, []);
 
   useEffect(() => {
@@ -82,7 +99,7 @@ function App() {
     }
   }, [isLoading, assignments]);
 
-  const addAssignment = (newTask) => {
+  const addAssignment = async (newTask) => {
     try {
       const isDuplicate = assignments.some(a => 
         a.title.toLowerCase() === newTask.title.toLowerCase() && 
@@ -92,14 +109,33 @@ function App() {
       if (isDuplicate) return;
 
       const priority = newTask.priority || calculatePriority(newTask.deadline);
-
-      setAssignments(prev => [...prev, {
+      const tempId = Date.now();
+      
+      const preparedTask = {
         ...newTask,
+        id: tempId,
         priority,
-        id: Date.now(),
         status: 'pending',
         createdAt: new Date().toISOString()
-      }]);
+      };
+
+      // 1. Immediate Local State Update (triggers localStorage sync)
+      setAssignments(prev => [...prev, preparedTask]);
+
+      // 2. Background Server Sync
+      try {
+        const res = await fetch('http://localhost:5000/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: `Add ${preparedTask.title} on ${preparedTask.deadline}` })
+        });
+        
+        if (res.ok) {
+           // On success, background sync will eventually refresh the full list with server IDs
+        }
+      } catch (err) {
+        console.warn("Server save failed. Task cached locally in storage.");
+      }
     } catch (err) {
       setError("Failed to add assignment. Please try again.");
     }
