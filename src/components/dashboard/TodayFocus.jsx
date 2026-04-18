@@ -67,7 +67,7 @@ const TodayFocus = ({ onFocus, assignments = [] }) => {
                 <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-violet-500 animate-pulse" />
-                        <h2 className="text-sm font-black uppercase tracking-[0.3em] text-text-secondary/60">Execution Plan</h2>
+                        <h2 className="text-sm font-black uppercase tracking-[0.3em] text-text-secondary/60 dark:text-violet-400/40">Execution Plan</h2>
                     </div>
                     <p className="text-xl font-bold text-text-primary/90 italic">
                         {focusMessage}
