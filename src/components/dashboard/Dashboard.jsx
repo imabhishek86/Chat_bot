@@ -152,7 +152,7 @@ const Dashboard = ({ assignments, onDelete, onUpdate }) => {
         </div>
     </div>
     
-    <TodayFocus onFocus={handleFocus} />
+    <TodayFocus onFocus={handleFocus} assignments={assignments} />
             
             <MissedDeadlines onUpdate={onUpdate} />
 

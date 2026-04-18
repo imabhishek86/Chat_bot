@@ -1,30 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 
-const TodayFocus = ({ onFocus }) => {
-    const [focusData, setFocusData] = useState({ tasks: [], message: '' });
-    const [isLoading, setIsLoading] = useState(true);
+const TodayFocus = ({ onFocus, assignments = [] }) => {
     const [explanation, setExplanation] = useState('');
     const [isExplaining, setIsExplaining] = useState(false);
 
-    useEffect(() => {
-        const fetchFocusData = async () => {
-            try {
-                const response = await fetch('http://localhost:5000/api/assignments/today-focus');
-                const data = await response.json();
-                setFocusData(data);
-            } catch (error) {
-                console.error("Error fetching Today's Focus:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
+    // Local Logic: Filter, Sort, and Select Top 3
+    const pendingTasks = assignments.filter(a => a.status === 'pending');
+    const sortedTasks = [...pendingTasks].sort((a, b) => {
+        // Primary: Nearest Deadline
+        const deadlineDiff = new Date(a.deadline) - new Date(b.deadline);
+        if (deadlineDiff !== 0) return deadlineDiff;
+        
+        // Secondary: Priority (High > Medium > Low)
+        const priorityWeight = { 'High': 1, 'Medium': 2, 'Low': 3 };
+        return (priorityWeight[a.priority] || 2) - (priorityWeight[b.priority] || 2);
+    });
 
-        fetchFocusData();
-        const interval = setInterval(fetchFocusData, 30000); // Auto refresh every 30s
-
-        return () => clearInterval(interval);
-    }, []);
+    const focusTasks = sortedTasks.slice(0, 3);
+    const focusMessage = focusTasks.length > 0 
+        ? `Start with ${focusTasks[0].title} assignment` 
+        : "No urgent focus tasks found. Enjoy your day or plan ahead!";
 
     const handleExplain = async () => {
         if (isExplaining) return;
@@ -63,17 +59,7 @@ const TodayFocus = ({ onFocus }) => {
         return "text-emerald-500 bg-emerald-500/10 border-emerald-500/20";
     };
 
-    if (isLoading) {
-        return (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                {[1, 2, 3].map(i => (
-                    <div key={i} className="h-48 rounded-3xl bg-white/5 animate-pulse border border-white/10" />
-                ))}
-            </div>
-        );
-    }
-
-    if (!focusData.tasks || focusData.tasks.length === 0) return null;
+    if (focusTasks.length === 0) return null;
 
     return (
         <section className="mb-12">
@@ -84,7 +70,7 @@ const TodayFocus = ({ onFocus }) => {
                         <h2 className="text-sm font-black uppercase tracking-[0.3em] text-text-secondary/60">Execution Plan</h2>
                     </div>
                     <p className="text-xl font-bold text-text-primary/90 italic">
-                        {focusData.message}
+                        {focusMessage}
                     </p>
                 </div>
 
@@ -130,7 +116,7 @@ const TodayFocus = ({ onFocus }) => {
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {focusData.tasks.slice(0, 3).map((task, idx) => {
+                {focusTasks.map((task, idx) => {
                     const urgencyClass = getUrgencyColor(task.deadline);
                     
                     return (
