@@ -43,6 +43,8 @@ app.use('/api/stats', statsRoutes);
 app.use('/api/calendar', calendarRoutes);
 app.use('/api/planner', plannerRoutes);
 app.use('/api/risk', riskRoutes);
+app.use('/api/risks', riskRoutes);
+
 app.use('/api/breakdown', breakdownRoutes);
 app.use('/api/optimizer', optimizerRoutes);
 app.use('/api/reports', reportRoutes);

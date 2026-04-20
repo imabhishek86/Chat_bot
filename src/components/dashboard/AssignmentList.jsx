@@ -15,7 +15,11 @@ const AssignmentList = ({ assignments, onDelete, onUpdate }) => {
                 const res = await fetch('http://localhost:5000/api/risk');
                 const data = await res.json();
                 const riskMap = {};
-                data.forEach(r => { riskMap[r.id] = r; });
+                if (data.risks) {
+                    data.risks.forEach(r => { 
+                        riskMap[r.id || r._id] = r; 
+                    });
+                }
                 setRisks(riskMap);
             } catch (err) {
                 console.error('Risk Fetch Error:', err);
@@ -96,7 +100,7 @@ const AssignmentList = ({ assignments, onDelete, onUpdate }) => {
 
                     return (
                         <motion.div 
-                            key={item.id} 
+                            key={item._id || item.id || `task-${index}`} 
                             layout
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}

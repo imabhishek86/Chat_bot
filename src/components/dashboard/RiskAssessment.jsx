@@ -9,8 +9,9 @@ const RiskAssessment = ({ assignments }) => {
     useEffect(() => {
         const fetchRisks = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/risks');
+                const response = await fetch('http://localhost:5000/api/risk');
                 const data = await response.json();
+
                 setRiskData(data);
             } catch (error) {
                 console.error("Error fetching Risk Analysis:", error);
