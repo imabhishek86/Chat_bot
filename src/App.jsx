@@ -13,12 +13,40 @@ import { calculatePriority } from './utils/priority';
 
 function App() {
   const [assignments, setAssignments] = useState([]);
+  const [mood, setMood] = useState(localStorage.getItem('user_mood') || 'Normal');
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
   const [palette, setPalette] = useState(localStorage.getItem('palette') || 'violet');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [urgentTasks, setUrgentTasks] = useState([]);
   const [showNotification, setShowNotification] = useState(false);
+
+  // Persistence for user_mood
+  useEffect(() => {
+    localStorage.setItem('user_mood', mood);
+  }, [mood]);
+
+  // Computed Filtered Assignments
+  const filteredAssignments = React.useMemo(() => {
+    return assignments.filter(a => {
+      if (a.status === 'completed') return true; // Always show completed tasks or filter them out? I'll keep them.
+      
+      const priority = (a.priority || calculatePriority(a.deadline)).toLowerCase();
+      
+      // Urgent logic check (due within 48h)
+      const now = new Date();
+      const deadline = new Date(a.deadline);
+      const diffHours = (deadline - now) / (1000 * 60 * 60);
+      const isUrgent = diffHours > 0 && diffHours < 48;
+
+      if (mood === 'Tired') return priority === 'low';
+      if (mood === 'Normal') return priority === 'medium';
+      if (mood === 'Focused') return priority === 'high' || isUrgent;
+      
+      return true;
+    });
+  }, [assignments, mood]);
+
 
   // Apply theme classes to document
   useEffect(() => {
@@ -207,7 +235,11 @@ function App() {
 
         <ErrorBoundary>
           <main className="flex flex-col xl:grid xl:grid-cols-[380px_450px_1fr] gap-8 items-start min-h-[70vh] pb-32">
-            <Sidebar assignments={assignments} />
+            <Sidebar 
+              assignments={assignments} 
+              mood={mood} 
+              onMoodChange={setMood} 
+            />
             
             <div className="w-full xl:sticky xl:top-8 animate-slide-up" style={{ animationDelay: '0.1s' }}>
               <Chat onAddAssignment={addAssignment} assignments={assignments} />
@@ -215,7 +247,7 @@ function App() {
 
             <div className="w-full animate-slide-up" style={{ animationDelay: '0.2s' }}>
               <Dashboard 
-                assignments={assignments} 
+                assignments={filteredAssignments} 
                 onDelete={deleteAssignment}
                 onUpdate={updateAssignment}
               />

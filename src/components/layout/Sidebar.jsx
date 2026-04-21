@@ -1,9 +1,17 @@
 import React from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { calculatePriority } from '../../utils/priority';
 
 
-const Sidebar = ({ assignments }) => {
+
+const Sidebar = ({ assignments, mood, onMoodChange }) => {
     const [streak, setStreak] = React.useState(0);
+
+    const moods = [
+        { id: 'Tired', label: 'Tired', emoji: '😴', color: 'rose' },
+        { id: 'Normal', label: 'Normal', emoji: '😊', color: 'sky' },
+        { id: 'Focused', label: 'Focused', emoji: '⚡', color: 'amber' }
+    ];
 
     React.useEffect(() => {
         const fetchStreak = async () => {
@@ -37,6 +45,69 @@ const Sidebar = ({ assignments }) => {
     return (
         <aside className="w-full xl:w-[320px] flex flex-col gap-8">
             <div className="px-4 space-y-8">
+                {/* Mood Selector Section */}
+                <div>
+                    <h3 className="text-[10px] font-black text-text-secondary/40 uppercase tracking-[0.4em] mb-4">
+                        Daily Vibe
+                    </h3>
+                    <div className="flex gap-3">
+                        {moods.map((m) => (
+                            <button
+                                key={m.id}
+                                onClick={() => onMoodChange(m.id)}
+                                className={`flex-1 glass-panel p-4 rounded-3xl flex flex-col items-center gap-2 transition-all duration-300 border ${
+                                    mood === m.id 
+                                    ? `bg-${m.color}-500/10 border-${m.color}-500/40 shadow-[0_0_20px_rgba(var(--${m.color}-rgb),0.1)]` 
+                                    : 'border-white/5 opacity-40 hover:opacity-100 hover:border-white/10'
+                                }`}
+                            >
+                                <span className="text-2xl">{m.emoji}</span>
+                                <span className={`text-[10px] font-black uppercase tracking-widest ${mood === m.id ? `text-${m.color}-400` : 'text-text-secondary'}`}>
+                                    {m.label}
+                                </span>
+                                {mood === m.id && (
+                                    <div className={`w-1 h-1 rounded-full bg-${m.color}-400 animate-pulse`} />
+                                )}
+                            </button>
+                        ))}
+                    </div>
+                    <div className="mt-4">
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={mood}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                className={`p-4 rounded-3xl border transition-all duration-500 overflow-hidden relative group/msg ${
+                                    mood === 'Tired' ? 'bg-rose-500/5 border-rose-500/10' :
+                                    mood === 'Focused' ? 'bg-amber-500/5 border-amber-500/10' :
+                                    'bg-sky-500/5 border-sky-500/10'
+                                }`}
+                            >
+                                <div className="flex items-center gap-3 relative z-10">
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${
+                                        mood === 'Tired' ? 'bg-rose-500/10 text-rose-400' :
+                                        mood === 'Focused' ? 'bg-amber-500/10 text-amber-400' :
+                                        'bg-sky-500/10 text-sky-400'
+                                    }`}>
+                                        {mood === 'Tired' ? '💪' : mood === 'Focused' ? '🎯' : '🌱'}
+                                    </div>
+                                    <p className={`text-[11px] font-bold italic ${
+                                        mood === 'Tired' ? 'text-rose-400' :
+                                        mood === 'Focused' ? 'text-amber-400' :
+                                        'text-sky-400'
+                                    }`}>
+                                        {mood === 'Tired' ? "Take it easy, start with small tasks" :
+                                         mood === 'Focused' ? "Let's crush the important tasks!" :
+                                         "Keep up the steady pace!"}
+                                    </p>
+                                </div>
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent -translate-x-full group-hover/msg:translate-x-full transition-transform duration-1000" />
+                            </motion.div>
+                        </AnimatePresence>
+                    </div>
+                </div>
+
                 {/* Header Section */}
                 <div>
                     <h3 className="text-[10px] font-black text-text-secondary/40 uppercase tracking-[0.4em] mb-4">
@@ -132,5 +203,6 @@ const Sidebar = ({ assignments }) => {
         </aside>
     );
 };
+
 
 export default Sidebar;
