@@ -250,6 +250,7 @@ function App() {
                 assignments={filteredAssignments} 
                 onDelete={deleteAssignment}
                 onUpdate={updateAssignment}
+                mood={mood}
               />
             </div>
           </main>

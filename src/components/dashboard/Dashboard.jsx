@@ -13,12 +13,13 @@ import TodayFocus from './TodayFocus';
 import RiskAssessment from './RiskAssessment';
 import MissedDeadlines from './MissedDeadlines';
 import WeeklyReport from './WeeklyReport';
+import MoodRecommendations from './MoodRecommendations';
 
 import './Dashboard.css';
 
 
 
-const Dashboard = ({ assignments, onDelete, onUpdate }) => {
+const Dashboard = ({ assignments, onDelete, onUpdate, mood }) => {
     const [viewMode, setViewMode] = useState('list'); // 'list', 'calendar', 'analytics', 'planner', 'optimizer', 'report'
     const [search, setSearch] = useState('');
     const [priorityFilter, setPriorityFilter] = useState('all');
@@ -177,14 +178,21 @@ const Dashboard = ({ assignments, onDelete, onUpdate }) => {
                     </h3>
 
                     {viewMode === 'list' && (
-                        <Filters 
-                            search={search} 
-                            onSearchChange={setSearch}
-                            priority={priorityFilter}
-                            onPriorityChange={setPriorityFilter}
-                            status={statusFilter}
-                            onStatusChange={setStatusFilter}
-                        />
+                        <>
+                            <MoodRecommendations 
+                                assignments={assignments} 
+                                mood={mood} 
+                                onFocus={handleFocus} 
+                            />
+                            <Filters 
+                                search={search} 
+                                onSearchChange={setSearch}
+                                priority={priorityFilter}
+                                onPriorityChange={setPriorityFilter}
+                                status={statusFilter}
+                                onStatusChange={setStatusFilter}
+                            />
+                        </>
                     )}
                 </div>
 
