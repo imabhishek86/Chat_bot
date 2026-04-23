@@ -10,9 +10,30 @@ const AssignmentList = ({ assignments, onDelete, onUpdate }) => {
     const [editValue, setEditValue] = useState('');
 
     useEffect(() => {
+        const calculateLocalRisks = () => {
+            const pendingTasks = assignments.filter(a => a.status === 'pending');
+            const manyPending = pendingTasks.length > 3;
+            const riskMap = {};
+            
+            pendingTasks.forEach(task => {
+                const now = new Date();
+                const deadline = new Date(task.deadline);
+                const diffHours = (deadline - now) / (1000 * 60 * 60);
+                
+                if (diffHours > 0 && diffHours < 48 && manyPending) {
+                    riskMap[task.id || task._id] = {
+                        id: task.id || task._id,
+                        message: "You may miss this task"
+                    };
+                }
+            });
+            return riskMap;
+        };
+
         const fetchRisks = async () => {
             try {
                 const res = await fetch('http://localhost:5000/api/risk');
+                if (!res.ok) throw new Error("Server error");
                 const data = await res.json();
                 const riskMap = {};
                 if (data.risks) {
@@ -22,11 +43,13 @@ const AssignmentList = ({ assignments, onDelete, onUpdate }) => {
                 }
                 setRisks(riskMap);
             } catch (err) {
-                console.error('Risk Fetch Error:', err);
+                console.warn('Using local risk calculation for list view');
+                setRisks(calculateLocalRisks());
             }
         };
         if (assignments.length > 0) fetchRisks();
     }, [assignments]);
+
 
     const handleBreakdown = async (taskId, title) => {
         if (subTasks[taskId]) {

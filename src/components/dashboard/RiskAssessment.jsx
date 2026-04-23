@@ -7,25 +7,48 @@ const RiskAssessment = ({ assignments }) => {
     const [isExpanded, setIsExpanded] = useState(false);
 
     useEffect(() => {
+        const calculateLocalRisks = () => {
+            if (!assignments || assignments.length === 0) return { risks: [], status: 'clear' };
+
+            const pendingTasks = assignments.filter(a => a.status === 'pending');
+            const manyPending = pendingTasks.length > 3;
+            
+            const risks = pendingTasks.filter(task => {
+                const now = new Date();
+                const deadline = new Date(task.deadline);
+                const diffHours = (deadline - now) / (1000 * 60 * 60);
+                
+                // Condition: Deadline within 2 days AND many pending
+                return diffHours > 0 && diffHours < 48 && manyPending;
+            }).map(task => ({
+                id: task.id || task._id,
+                message: "You may miss this task"
+            }));
+
+            return { 
+                risks, 
+                status: risks.length > 0 ? 'warning' : 'clear' 
+            };
+        };
+
         const fetchRisks = async () => {
             try {
                 const response = await fetch('http://localhost:5000/api/risk');
+                if (!response.ok) throw new Error("Server error");
                 const data = await response.json();
-
                 setRiskData(data);
             } catch (error) {
-                console.error("Error fetching Risk Analysis:", error);
+                // Fallback to local calculation if server is down
+                console.warn("Using local risk calculation (Offline Mode)");
+                setRiskData(calculateLocalRisks());
             } finally {
                 setIsLoading(false);
             }
         };
 
-        if (assignments && assignments.length > 0) {
-            fetchRisks();
-        } else {
-            setIsLoading(false);
-        }
+        fetchRisks();
     }, [assignments]);
+
 
     if (isLoading) return null;
     if (riskData.risks.length === 0) return null;
